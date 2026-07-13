@@ -11,89 +11,88 @@ const MalzemeListe = () => {
   // Modal (Detay Ekranı) State'leri
   const [modalData, setModalData] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
-  const [reportDate, setReportDate] = useState(
-    new Date().toISOString().split("T")[0],
-  );
+  
+  // PDF / Excel Raporlama Parametreleri
+  const [reportDate, setReportDate] = useState(new Date().toISOString().split("T")[0]);
   const [reportType, setReportType] = useState("cumulative");
+  const [filterCategoryInReport, setFilterCategoryInReport] = useState(false);
 
+  // Excel Dosyası Oluşturma ve İndirme Motoru
   const handleExcelExport = async () => {
     try {
-      setModalLoading(true); // Yükleniyor spinner'ını açar
-
-      // Veritabanındaki tüm stok hareket loglarını çekiyoruz
+      setModalLoading(true); // Yükleniyor spinner'ını göster
+      
+      // Sunucudan tüm stok hareketlerini çekiyoruz
       const response = await api.get("/malzemeHareketleri");
       const hareketler = response.data;
 
-      const raporVerileri = data
-        .map((m) => {
-          // Hareketleri filtreleme
-          const mHareketleri = hareketler.filter((h) => {
-            const ayniMalzeme = h.malzeme.id === m.id;
-            const hareketTarihStr = h.hareketTarihi.split("T")[0];
-
-            if (reportType === "cumulative") {
-              // O güne kadar ne olmuş (kümülatif)
-              return (
-                ayniMalzeme &&
-                new Date(h.hareketTarihi) <= new Date(reportDate + "T23:59:59")
-              );
-            } else {
-              // Sadece o gün ne olmuş (günlük)
-              return ayniMalzeme && hareketTarihStr === reportDate;
-            }
-          });
-
-          // Miktar toplama
-          let miktarToplami = 0;
-          mHareketleri.forEach((h) => {
-            const miktar = h.miktar || 0;
-            if (h.hareketTuru === "GELEN" || h.hareketTuru === "URETIM") {
-              miktarToplami += miktar;
-            } else if (
-              h.hareketTuru === "SATIS" ||
-              h.hareketTuru === "TUKETIM"
-            ) {
-              miktarToplami -= miktar;
-            }
-          });
-
-          return {
-            id: m.id,
-            malzemeKodu: m.malzemeKodu,
-            malzemeAdi: m.malzemeAdi,
-            malzemeTurAdi: m.malzemeTurAdi,
-            mensei: m.mensei,
-            stokMiktari: miktarToplami,
-          };
-        })
-        // YENİ KURALLI FİLTRE: 0 stoğu gizleme kuralını sadece günlük raporda uygula
-        .filter((row) => {
-          if (reportType === "daily") {
-            return row.stokMiktari !== 0; // Günlükte 0 olanları gizle
+      // Her malzeme için tarih kriterine göre bakiye hesabı
+      const raporVerileri = data.map((m) => {
+        const mHareketleri = hareketler.filter((h) => {
+          const ayniMalzeme = h.malzeme.id === m.id;
+          const hareketTarihStr = h.hareketTarihi.split("T")[0];
+          
+          if (reportType === "cumulative") {
+            // Seçenek 1: O güne kadar ne olmuş (kümülatif)
+            return ayniMalzeme && new Date(h.hareketTarihi) <= new Date(reportDate + "T23:59:59");
+          } else {
+            // Seçenek 2: Sadece o gün ne olmuş (günlük)
+            return ayniMalzeme && hareketTarihStr === reportDate;
           }
-          return true; // Kümülatifte hepsini göster
         });
 
-      // Başlık ve kolon isimlendirmesi
-      const miktarKolonBasligi =
-        reportType === "cumulative" ? "Stok Bakiyesi" : "Gunluk Net Degisim";
-      let csvContent = `ID;Malzeme Kodu;Malzeme Tanimi;Malzeme Turu;Mensei;${miktarKolonBasligi}\n`;
+        let miktarToplami = 0;
+        mHareketleri.forEach((h) => {
+          const miktar = h.miktar || 0;
+          if (h.hareketTuru === "GELEN" || h.hareketTuru === "URETIM") {
+            miktarToplami += miktar;
+          } else if (h.hareketTuru === "SATIS" || h.hareketTuru === "TUKETIM") {
+            miktarToplami -= miktar;
+          }
+        });
 
-      raporVerileri.forEach((row) => {
+        return {
+          id: m.id,
+          malzemeKodu: m.malzemeKodu,
+          malzemeAdi: m.malzemeAdi,
+          malzemeTurAdi: m.malzemeTurAdi,
+          mensei: m.mensei,
+          stokMiktari: miktarToplami
+        };
+      })
+      // Filtre 1: Miktarı 0 olanları sadece günlük raporda gizle
+      .filter((row) => {
+        if (reportType === "daily") {
+          return row.stokMiktari !== 0;
+        }
+        return true;
+      });
+
+      // Filtre 2: Sürgü (Switch) açıksa ve kategori seçiliyse Excel'i filtrele
+      let nihaiTabloVerileri = raporVerileri;
+      if (filterCategoryInReport && selectedTur) {
+        nihaiTabloVerileri = raporVerileri.filter(
+          (row) => row.malzemeTurAdi === selectedTur
+        );
+      }
+
+      // CSV metin şablonunu oluşturma
+      const miktarKolonBasligi = reportType === "cumulative" ? "Stok Bakiyesi" : "Gunluk Net Degisim";
+      let csvContent = `ID;Malzeme Kodu;Malzeme Tanimi;Malzeme Turu;Mensei;${miktarKolonBasligi}\n`;
+      
+      nihaiTabloVerileri.forEach((row) => {
         csvContent += `${row.id};${row.malzemeKodu};${row.malzemeAdi};${row.malzemeTurAdi};${row.mensei};${row.stokMiktari}\n`;
       });
 
-      const blob = new Blob(["\uFEFF" + csvContent], {
-        type: "text/csv;charset=utf-8;",
-      });
+      // Tarayıcı belleğinde dosya nesnesi oluşturma (Türkçe BOM ile)
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-
-      const dosyaEki =
-        reportType === "cumulative" ? "KUMULATIF_OZET" : "GUNLUK_HAREKET";
+      
+      const dosyaEki = reportType === "cumulative" ? "KUMULATIF_OZET" : "GUNLUK_HAREKET";
       link.setAttribute("download", `Isdemir_${dosyaEki}_${reportDate}.csv`);
-
+      
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -102,7 +101,7 @@ const MalzemeListe = () => {
       console.error("Excel oluşturma hatası:", error);
       alert("Excel raporu oluşturulamadı.");
     } finally {
-      setModalLoading(false); // Yükleniyor durumunu bitirir
+      setModalLoading(false);
     }
   };
 
@@ -181,6 +180,7 @@ const MalzemeListe = () => {
 
   return (
     <div className="erp-container">
+      {/* Üst Durum Çubuğu */}
       <div
         className="d-flex justify-content-between align-items-center border-bottom border-secondary pb-3 mb-4"
         style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
@@ -208,6 +208,7 @@ const MalzemeListe = () => {
         </div>
       </div>
 
+      {/* Metrik Kartları */}
       <div className="row g-3 mb-5">
         <div className="col-md-6">
           <div className="metric-card">
@@ -267,6 +268,7 @@ const MalzemeListe = () => {
         </div>
       </div>
 
+      {/* Arama ve Filtreleme Bölümü */}
       <div className="row g-3 mb-4 align-items-end">
         <div className="col-md-7">
           <label className="form-label text-white-50">Akıllı Arama</label>
@@ -296,12 +298,13 @@ const MalzemeListe = () => {
           </select>
         </div>
       </div>
-      {/* Excel Raporlama Bölümü */}
+
+      {/* Excel Raporlama Kontrol Paneli */}
       <div
         className="row g-3 mb-4 align-items-end border-top border-secondary pt-3"
         style={{ borderColor: "rgba(255,255,255,0.05) !important" }}
       >
-        <div className="col-md-4">
+        <div className="col-md-3">
           <label className="form-label text-white-50">Rapor Türü</label>
           <select
             className="form-select mb-0"
@@ -312,7 +315,7 @@ const MalzemeListe = () => {
             <option value="daily">Sadece O Gün (Günlük Değişim)</option>
           </select>
         </div>
-        <div className="col-md-4">
+        <div className="col-md-3">
           <label className="form-label text-white-50">Rapor Tarihi</label>
           <input
             type="date"
@@ -321,7 +324,22 @@ const MalzemeListe = () => {
             onChange={(e) => setReportDate(e.target.value)}
           />
         </div>
-        <div className="col-md-4">
+        <div className="col-md-3 d-flex align-items-center justify-content-center" style={{ height: "38px" }}>
+          <div className="form-check form-switch mb-0">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="filterCategoryCheck"
+              checked={filterCategoryInReport}
+              onChange={(e) => setFilterCategoryInReport(e.target.checked)}
+              style={{ cursor: "pointer" }}
+            />
+            <label className="form-check-label text-white-50 ms-2" htmlFor="filterCategoryCheck" style={{ fontSize: "0.82rem", cursor: "pointer" }}>
+              Seçili Kategoriyi Filtrele ({selectedTur ? selectedTur.toUpperCase() : "Tümü"})
+            </label>
+          </div>
+        </div>
+        <div className="col-md-3">
           <button
             className="btn btn-outline-success w-100 mb-0 d-flex align-items-center justify-content-center gap-2"
             onClick={handleExcelExport}
@@ -333,17 +351,10 @@ const MalzemeListe = () => {
         </div>
       </div>
 
-      <div 
-        className="table-responsive rounded p-1"
-        style={{ 
-          backgroundColor: "rgba(0,0,0,0.1)", 
-          border: "1px solid rgba(255,255,255,0.05)",
-          height: "450px",
-          overflowY: "scroll" 
-        }}
-      >
-        <table className="table table-dark table-striped table-hover w-100 m-0">
-          <thead style={{ position: "sticky", top: 0, zIndex: 10, backgroundColor: "#212529" }}>
+      {/* Envanter Tablosu */}
+      <div className="table-responsive">
+        <table className="table table-dark table-striped table-hover w-100">
+          <thead>
             <tr>
               <th style={{ width: "80px", color: "#a1a1aa" }}>ID</th>
               <th style={{ width: "130px", color: "#a1a1aa" }}>KOD</th>
@@ -446,7 +457,7 @@ const MalzemeListe = () => {
         </table>
       </div>
 
-      {/* DETAY MODALI (HAREKET LOGLARI) */}
+      {/* Detay Modalı (Hareket Log Geçmişi) */}
       {modalData && (
         <div
           style={{

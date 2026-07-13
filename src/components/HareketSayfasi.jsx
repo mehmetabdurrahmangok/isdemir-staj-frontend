@@ -12,11 +12,13 @@ const HareketSayfasi = () => {
     islem: "GELEN",
     miktar: "",
   });
+
   // Seçilen rapor tarihini ve raporlama yöntemini (Kümülatif vs Günlük) tutan değişkenler
   const [reportDate, setReportDate] = useState(
     new Date().toISOString().split("T")[0],
   );
   const [reportType, setReportType] = useState("cumulative");
+  const [filterSearchInReport, setFilterSearchInReport] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("tarih-azalan");
@@ -103,6 +105,7 @@ const HareketSayfasi = () => {
       }
     }
   };
+
   const handleExcelExport = () => {
     try {
       // 1. Tarih kriterine göre hareket loglarını filtrele
@@ -120,11 +123,27 @@ const HareketSayfasi = () => {
         }
       });
 
+      // YENİ EKLEME: Sürgü aktifse ve arama kutusunda yazı varsa Excel'i filtrele
+      let nihaiHareketler = filtrelenmisHareketler;
+      if (filterSearchInReport && searchQuery) {
+        const searchLower = searchQuery.toLowerCase();
+        nihaiHareketler = filtrelenmisHareketler.filter((h) => {
+          const ad = h.malzeme?.malzemeAdi?.toLowerCase() || "";
+          const kod = h.malzeme?.malzemeKodu?.toLowerCase() || "";
+          const tur = h.hareketTuru?.toLowerCase() || "";
+          return (
+            ad.includes(searchLower) ||
+            kod.includes(searchLower) ||
+            tur.includes(searchLower)
+          );
+        });
+      }
+
       // 2. CSV metnini oluşturma (Sütunlar noktalı virgülle ayrılır)
       let csvContent =
         "Hareket ID;Malzeme Kodu;Malzeme Adi;Islem Turu;Islem Tarihi;Miktar\n";
 
-      filtrelenmisHareketler.forEach((h) => {
+      nihaiHareketler.forEach((h) => {
         const isNegative =
           h.hareketTuru === "SATIS" || h.hareketTuru === "TUKETIM";
         const miktarDegeri = isNegative ? `-${h.miktar}` : `+${h.miktar}`;
@@ -265,12 +284,12 @@ const HareketSayfasi = () => {
         </div>
       </form>
 
-            {/* 1. EXCEL RAPORLAMA KONTROL PANELİ (DIŞARIDA VE EN ÜSTE ALINDI) */}
+      {/* 1. EXCEL RAPORLAMA KONTROL PANELİ */}
       <div
         className="row g-3 mb-4 align-items-end border-top border-secondary pt-3"
         style={{ borderColor: "rgba(255,255,255,0.05) !important" }}
       >
-        <div className="col-md-4">
+        <div className="col-md-3">
           <label className="form-label text-white-50">Log Rapor Türü</label>
           <select
             className="form-select mb-0"
@@ -281,7 +300,7 @@ const HareketSayfasi = () => {
             <option value="daily">Sadece O Gün (Günlük Log)</option>
           </select>
         </div>
-        <div className="col-md-4">
+        <div className="col-md-3">
           <label className="form-label text-white-50">Rapor Tarihi</label>
           <input
             type="date"
@@ -290,7 +309,30 @@ const HareketSayfasi = () => {
             onChange={(e) => setReportDate(e.target.value)}
           />
         </div>
-        <div className="col-md-4">
+        <div
+          className="col-md-3 d-flex align-items-center justify-content-center"
+          style={{ height: "38px" }}
+        >
+          <div className="form-check form-switch mb-0">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="filterSearchCheck"
+              checked={filterSearchInReport}
+              onChange={(e) => setFilterSearchInReport(e.target.checked)}
+              style={{ cursor: "pointer" }}
+            />
+            <label
+              className="form-check-label text-white-50 ms-2"
+              htmlFor="filterSearchCheck"
+              style={{ fontSize: "0.82rem", cursor: "pointer" }}
+            >
+              Arama Kriterini Filtrele (
+              {searchQuery ? `"${searchQuery}"` : "Tümü"})
+            </label>
+          </div>
+        </div>
+        <div className="col-md-3">
           <button
             type="button"
             className="btn btn-outline-success w-100 mb-0 d-flex align-items-center justify-content-center gap-2"
@@ -302,7 +344,7 @@ const HareketSayfasi = () => {
         </div>
       </div>
 
-      {/* 2. BAŞLIK VE ARAMA PANELİ (EXCEL DIŞINDA KALDI) */}
+      {/* 2. BAŞLIK VE ARAMA PANELİ */}
       <div className="d-flex justify-content-between align-items-end mb-3">
         <h4 className="mb-0 text-white" style={{ fontSize: "0.95rem" }}>
           Son Stok Hareket Logları
@@ -319,7 +361,6 @@ const HareketSayfasi = () => {
             <option value="miktar-azalan">Miktar: En Yüksek</option>
             <option value="miktar-artan">Miktar: En Düşük</option>
           </select>
-          {/* Arama alanı ve diğer kodlar aynen devam eder... */}
           Arama:
           <input
             type="text"
