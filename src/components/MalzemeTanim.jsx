@@ -241,7 +241,7 @@ const MalzemeTanim = () => {
                     <button 
                       type="button"
                       className="btn btn-sm btn-outline-info py-0 px-2" 
-                      style={{ width: "75px" }}
+                      style={{ width: "95px" }}
                       onClick={() => handleEditClick(m)}
                     >
                       Düzenle
@@ -249,7 +249,7 @@ const MalzemeTanim = () => {
                     <button 
                       type="button"
                       className="btn btn-sm btn-outline-danger py-0 px-2" 
-                      style={{ width: "75px" }}
+                      style={{ width: "95px" }}
                       onClick={() => handleDelete(m.id)}
                     >
                       Sil
