@@ -352,9 +352,25 @@ const MalzemeListe = () => {
       </div>
 
       {/* Envanter Tablosu */}
-      <div className="table-responsive">
-        <table className="table table-dark table-striped table-hover w-100">
-          <thead>
+            {/* Envanter Tablosu */}
+      <div
+        className="table-responsive rounded p-1"
+        style={{
+          backgroundColor: "rgba(0,0,0,0.1)",
+          border: "1px solid rgba(255,255,255,0.05)",
+          height: "400px",
+          overflowY: "scroll",
+        }}
+      >
+        <table className="table table-dark table-striped table-hover w-100 m-0">
+          <thead
+            style={{
+              position: "sticky",
+              top: 0,
+              zIndex: 10,
+              backgroundColor: "#121214", /* Koyu kart rengiyle uyumlu yapışkan başlık */
+            }}
+          >
             <tr>
               <th style={{ width: "80px", color: "#a1a1aa" }}>ID</th>
               <th style={{ width: "130px", color: "#a1a1aa" }}>KOD</th>
