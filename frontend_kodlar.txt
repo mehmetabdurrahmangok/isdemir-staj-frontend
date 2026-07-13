@@ -1,0 +1,1679 @@
+﻿==== \src\App.jsx ====
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+
+import MalzemeListe from "./components/MalzemeListe"; // Ana sayfamÄ±z (Genel Rapor)
+import TurTanim from "./components/TurTanim";
+import MalzemeTanim from "./components/MalzemeTanim";
+import HareketSayfasi from "./components/HareketSayfasi";
+import "./App.css";
+
+function App() {
+  return (
+    <Router>
+      {/* Ãœst MenÃ¼  */}
+      <nav className="navbar navbar-expand-lg navbar-light">
+        <div className="container-fluid justify-content-between px-5">
+          <Link className="navbar-brand fw-black" to="/">
+            â–  NEURAL.STOK
+          </Link>
+          <div className="navbar-nav d-flex flex-row">
+            <Link className="nav-link" to="/">
+              Genel Rapor
+            </Link>
+            <Link className="nav-link" to="/tur-tanim">
+              TÃ¼r TanÄ±mÄ±
+            </Link>
+            <Link className="nav-link" to="/malzeme-tanim">
+              Malzeme TanÄ±mÄ±
+            </Link>
+            <Link className="nav-link" to="/hareket-giris">
+              Stok Hareketleri
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Sayfa Ä°Ã§erikleri */}
+      <div className="main-wrapper">
+        <Routes>
+          <Route path="/" element={<MalzemeListe />} />
+          <Route path="/tur-tanim" element={<TurTanim />} />
+          <Route path="/malzeme-tanim" element={<MalzemeTanim />} />
+          <Route path="/hareket-giris" element={<HareketSayfasi />} />
+          <Route path="*" element={<MalzemeListe />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
+
+
+==== \src\main.jsx ====
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+
+
+==== \src\api\axiosInstance.js ====
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "http://localhost:8000/api", // FastAPI adresi
+  timeout: 1000, // EÄER BACKEND 1 SANÄ°YE Ä°Ã‡Ä°NDE CEVAP VERMEZSE BEKLEMEYÄ° BIRAK (Performans iÃ§in kritik)
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+export default api;
+
+
+==== \src\components\Dashboard.jsx ====
+import React, { useState, useEffect } from "react";
+import api from "../api/axiosInstance";
+
+const Dashboard = () => {
+  const mockVeriler = [
+    {
+      id: 1,
+      kod: "MLZ001",
+      ad: "Pelet Cevher",
+      mensei: "Yerli",
+      tur: "Cevher",
+      islem: "ALIS",
+      miktar: 150,
+      hareketTarihi: "2026-07-09",
+    },
+    {
+      id: 2,
+      kod: "MLZ002",
+      ad: "Sinter",
+      mensei: "Ä°thal",
+      tur: "Ara ÃœrÃ¼n",
+      islem: "URETIM",
+      miktar: 480,
+      hareketTarihi: "2026-07-09",
+    },
+    {
+      id: 3,
+      kod: "MLZ003",
+      ad: "KireÃ§ TaÅŸÄ±",
+      mensei: "Yerli",
+      tur: "KatkÄ±",
+      islem: "SATIS",
+      miktar: 80,
+      hareketTarihi: "2026-07-08",
+    },
+  ];
+
+  const [data, setData] = useState(mockVeriler);
+  const [turler, setTurler] = useState([
+    { id: 1, tur: "Cevher" },
+    { id: 2, tur: "Ara ÃœrÃ¼n" },
+    { id: 3, tur: "KatkÄ±" },
+  ]);
+  const [search, setSearch] = useState("");
+  const [selectedTur, setSelectedTur] = useState("");
+  const [isOffline, setIsOffline] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [activePanel, setActivePanel] = useState(null);
+
+  // Form states
+  const [malzemeForm, setMalzemeForm] = useState({
+    kod: "",
+    ad: "",
+    mensei: "Yerli",
+    turId: "",
+  });
+  const [hareketForm, setHareketForm] = useState({
+    malzemeId: "",
+    islem: "ALIS",
+    miktar: "",
+    depo: "ANA DEPO",
+  });
+  const [turForm, setTurForm] = useState("");
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await api.get("/malzemeler");
+      if (response.data && response.data.length > 0) {
+        setData(response.data);
+      }
+      const turResponse = await api.get("/turler");
+      if (turResponse.data && turResponse.data.length > 0) {
+        setTurler(turResponse.data);
+      }
+      setIsOffline(false);
+    } catch (error) {
+      setIsOffline(true);
+    }
+  };
+
+  const handleMalzemeSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await api.post("/malzemeler", malzemeForm);
+      setMalzemeForm({ kod: "", ad: "", mensei: "Yerli", turId: "" });
+      setActivePanel(null);
+      fetchData();
+    } catch (error) {
+      alert("Hata");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleHareketSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await api.post("/hareketler", hareketForm);
+      setHareketForm({
+        malzemeId: "",
+        islem: "ALIS",
+        miktar: "",
+        depo: "ANA DEPO",
+      });
+      setActivePanel(null);
+      fetchData();
+    } catch (error) {
+      alert("Hata");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTurSubmit = async (e) => {
+    e.preventDefault();
+    if (!turForm.trim()) return;
+    setLoading(true);
+    try {
+      await api.post("/turler", { tur: turForm });
+      setTurForm("");
+      setActivePanel(null);
+      fetchData();
+    } catch (error) {
+      alert("Hata");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredData = data.filter((item) => {
+    const matchesSearch =
+      item.ad.toLowerCase().includes(search.toLowerCase()) ||
+      item.kod.toLowerCase().includes(search.toLowerCase());
+    const matchesTur = selectedTur === "" || item.tur === selectedTur;
+    return matchesSearch && matchesTur;
+  });
+
+  // Metrik KartÄ± Ä°statistikleri
+  const totalFlows = data.length;
+  const totalQuantity = data.reduce(
+    (sum, item) => sum + (item.islem === "SATIS" ? -item.miktar : item.miktar),
+    0,
+  );
+  const activeKinds = Array.from(new Set(data.map((item) => item.tur))).length;
+
+  return (
+    <div className="erp-container">
+      {/* Ãœst Logo ve Durum IÅŸÄ±ÄŸÄ± */}
+      <div
+        className="d-flex justify-content-between align-items-center border-bottom border-secondary pb-3 mb-4"
+        style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
+      >
+        <h2
+          className="m-0 border-0 p-0 text-white"
+          style={{ fontSize: "1.25rem", fontWeight: 700 }}
+        >
+          â–  NEURAL.STOK
+        </h2>
+        <div className="d-flex align-items-center">
+          <span
+            className={`pulse-led ${isOffline ? "led-orange" : "led-green"}`}
+          ></span>
+          <span
+            className="font-mono"
+            style={{
+              fontSize: "0.75rem",
+              color: isOffline ? "#f59e0b" : "#10b981",
+            }}
+          >
+            {isOffline ? "CH-OFFLINE" : "CH-ONLINE"}
+          </span>
+        </div>
+      </div>
+
+      {/* METRÄ°K KARTLARI (Stripe TarzÄ± Ä°statistikler) */}
+      <div className="row g-3 mb-5">
+        <div className="col-md-4">
+          <div className="metric-card">
+            <span
+              style={{
+                fontSize: "0.72rem",
+                color: "#a1a1aa",
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Toplam Hareket SayÄ±sÄ±
+            </span>
+            <h3
+              className="m-0 mt-2 font-mono text-white fw-bold"
+              style={{ fontSize: "1.8rem" }}
+            >
+              {totalFlows}
+            </h3>
+            <span
+              style={{ fontSize: "0.68rem", color: "#10b981", fontWeight: 600 }}
+            >
+              â†‘ +14.2% geÃ§en haftaya gÃ¶re
+            </span>
+          </div>
+        </div>
+        <div className="col-md-4">
+          <div className="metric-card">
+            <span
+              style={{
+                fontSize: "0.72rem",
+                color: "#a1a1aa",
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Net Stok Hacmi
+            </span>
+            <h3
+              className="m-0 mt-2 font-mono text-white fw-bold"
+              style={{ fontSize: "1.8rem" }}
+            >
+              {totalQuantity}{" "}
+              <span style={{ fontSize: "0.9rem", color: "#a1a1aa" }}>Adet</span>
+            </h3>
+            <span
+              style={{ fontSize: "0.68rem", color: "#8b5cf6", fontWeight: 600 }}
+            >
+              âš¡ Sistem doluluk oranÄ±: %68
+            </span>
+          </div>
+        </div>
+        <div className="col-md-4">
+          <div className="metric-card">
+            <span
+              style={{
+                fontSize: "0.72rem",
+                color: "#a1a1aa",
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Aktif Malzeme TÃ¼rÃ¼
+            </span>
+            <h3
+              className="m-0 mt-2 font-mono text-white fw-bold"
+              style={{ fontSize: "1.8rem" }}
+            >
+              {activeKinds}{" "}
+              <span style={{ fontSize: "0.9rem", color: "#a1a1aa" }}>
+                Kategori
+              </span>
+            </h3>
+            <span
+              style={{ fontSize: "0.68rem", color: "#a1a1aa", fontWeight: 600 }}
+            >
+              TÃ¼m depolarda aktif
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* AKSÄ°YON BUTONLARI */}
+      <div className="d-flex gap-3 mb-4 flex-wrap">
+        <button
+          className={`btn ${activePanel === "malzeme" ? "" : "btn-secondary-erp"}`}
+          onClick={() =>
+            setActivePanel(activePanel === "malzeme" ? null : "malzeme")
+          }
+        >
+          {activePanel === "malzeme" ? "âœ• Paneli Kapat" : "[+] Malzeme Ekle"}
+        </button>
+        <button
+          className={`btn ${activePanel === "hareket" ? "" : "btn-secondary-erp"}`}
+          onClick={() =>
+            setActivePanel(activePanel === "hareket" ? null : "hareket")
+          }
+        >
+          {activePanel === "hareket" ? "âœ• Paneli Kapat" : "[+] Hareketi Ä°ÅŸle"}
+        </button>
+        <button
+          className={`btn ${activePanel === "tur" ? "" : "btn-secondary-erp"}`}
+          onClick={() => setActivePanel(activePanel === "tur" ? null : "tur")}
+        >
+          {activePanel === "tur" ? "âœ• Paneli Kapat" : "[+] Yeni TÃ¼r Ekle"}
+        </button>
+      </div>
+
+      {/* FORM PANELLERÄ° */}
+      {activePanel === "malzeme" && (
+        <div
+          className="p-4 mb-4 border border-secondary bg-dark rounded-3 animate-fade-in"
+          style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
+        >
+          <h4
+            className="mb-3 text-white"
+            style={{ fontSize: "1rem", fontWeight: 600 }}
+          >
+            Yeni Malzeme KayÄ±t ProtokolÃ¼
+          </h4>
+          <form onSubmit={handleMalzemeSubmit}>
+            <div className="row g-2">
+              <div className="col-md-3">
+                <label className="form-label">Kod</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="MLZ100"
+                  value={malzemeForm.kod}
+                  onChange={(e) =>
+                    setMalzemeForm({ ...malzemeForm, kod: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="col-md-3">
+                <label className="form-label">Malzeme AdÄ±</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Sac levha vb."
+                  value={malzemeForm.ad}
+                  onChange={(e) =>
+                    setMalzemeForm({ ...malzemeForm, ad: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="col-md-3">
+                <label className="form-label">TÃ¼rÃ¼</label>
+                <select
+                  className="form-select"
+                  value={malzemeForm.turId}
+                  onChange={(e) =>
+                    setMalzemeForm({ ...malzemeForm, turId: e.target.value })
+                  }
+                  required
+                >
+                  <option value="">SeÃ§iniz...</option>
+                  {turler.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.tur.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-3">
+                <label className="form-label">MenÅŸei</label>
+                <select
+                  className="form-select"
+                  value={malzemeForm.mensei}
+                  onChange={(e) =>
+                    setMalzemeForm({ ...malzemeForm, mensei: e.target.value })
+                  }
+                >
+                  <option value="Yerli">Yerli</option>
+                  <option value="Ä°thal">Ä°thal</option>
+                </select>
+              </div>
+            </div>
+            <div className="text-end mt-3">
+              <button type="submit" className="btn btn-sm" disabled={loading}>
+                Malzemeyi Kaydet
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {activePanel === "hareket" && (
+        <div
+          className="p-4 mb-4 border border-secondary bg-dark rounded-3 animate-fade-in"
+          style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
+        >
+          <h4
+            className="mb-3 text-white"
+            style={{ fontSize: "1rem", fontWeight: 600 }}
+          >
+            Stok GiriÅŸ-Ã‡Ä±kÄ±ÅŸ Formu
+          </h4>
+          <form onSubmit={handleHareketSubmit}>
+            <div className="row g-2">
+              <div className="col-md-3">
+                <label className="form-label">Malzeme</label>
+                <select
+                  className="form-select"
+                  value={hareketForm.malzemeId}
+                  onChange={(e) =>
+                    setHareketForm({
+                      ...hareketForm,
+                      malzemeId: e.target.value,
+                    })
+                  }
+                  required
+                >
+                  <option value="">SeÃ§iniz...</option>
+                  {data.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.ad} ({m.kod})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-3">
+                <label className="form-label">Ä°ÅŸlem</label>
+                <select
+                  className="form-select"
+                  value={hareketForm.islem}
+                  onChange={(e) =>
+                    setHareketForm({ ...hareketForm, islem: e.target.value })
+                  }
+                >
+                  <option value="ALIS">GÄ°RÄ°Å (ALIÅ)</option>
+                  <option value="SATIS">Ã‡IKIÅ (SATIÅ)</option>
+                  <option value="TRANSFER">TRANSFER</option>
+                </select>
+              </div>
+              <div className="col-md-3">
+                <label className="form-label">Miktar</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="0"
+                  value={hareketForm.miktar}
+                  onChange={(e) =>
+                    setHareketForm({ ...hareketForm, miktar: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="col-md-3">
+                <label className="form-label">Depo</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={hareketForm.depo}
+                  onChange={(e) =>
+                    setHareketForm({ ...hareketForm, depo: e.target.value })
+                  }
+                  required
+                />
+              </div>
+            </div>
+            <div className="text-end mt-3">
+              <button type="submit" className="btn btn-sm" disabled={loading}>
+                Hareketi Ä°ÅŸle
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {activePanel === "tur" && (
+        <div
+          className="p-4 mb-4 border border-secondary bg-dark rounded-3 animate-fade-in"
+          style={{
+            maxWidth: "500px",
+            borderColor: "rgba(255,255,255,0.08) !important",
+          }}
+        >
+          <h4
+            className="mb-3 text-white"
+            style={{ fontSize: "1rem", fontWeight: 600 }}
+          >
+            Yeni Malzeme TÃ¼rÃ¼ TanÄ±mla
+          </h4>
+          <form onSubmit={handleTurSubmit}>
+            <div className="mb-3">
+              <label className="form-label">TÃ¼r AdÄ±</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Ã–rn: Sinter, Kok, Cevher"
+                value={turForm}
+                onChange={(e) => setTurForm(e.target.value)}
+                required
+              />
+            </div>
+            <div className="text-end">
+              <button type="submit" className="btn btn-sm" disabled={loading}>
+                Kategori Ekle
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* ARAMA VE SÃœZME PANELI */}
+      <div className="row g-3 mb-4 align-items-end">
+        <div className="col-md-7">
+          <label className="form-label">AkÄ±llÄ± Arama</label>
+          <input
+            type="text"
+            className="form-control mb-0"
+            placeholder="Malzeme adÄ±, kod veya etiket ile tarayÄ±n..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="col-md-5">
+          <label className="form-label">Kategori Filtresi</label>
+          <select
+            className="form-select mb-0"
+            value={selectedTur}
+            onChange={(e) => setSelectedTur(e.target.value)}
+          >
+            <option value="">TÃœM KATEGORÄ°LER</option>
+            {Array.from(new Set(data.map((item) => item.tur))).map((t, idx) => (
+              <option key={idx} value={t}>
+                {t ? t.toUpperCase() : ""}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* PREMIUM ENVANTER TABLOSU */}
+      <div className="table-responsive">
+        <table className="table table-striped w-100">
+          <thead>
+            <tr>
+              <th style={{ width: "80px" }}>REF_NO</th>
+              <th style={{ width: "130px" }}>KOD</th>
+              <th>MALZEME TANIMI / ADI</th>
+              <th style={{ width: "130px" }}>TÃœRÃœ</th>
+              <th style={{ width: "100px" }}>MENÅEÄ°</th>
+              <th style={{ width: "140px" }}>Ä°ÅLEM TARÄ°HÄ°</th>
+              <th className="text-end" style={{ width: "180px" }}>
+                MÄ°KTAR / YOÄUNLUK
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredData.length > 0 ? (
+              filteredData.map((item, idx) => {
+                const isNegative =
+                  item.islem === "SATIS" || item.islem === "CIKIS";
+                const prefix = isNegative ? "-" : "+";
+                const quantityColor = isNegative
+                  ? "var(--danger-accent)"
+                  : "var(--success-accent)";
+
+                // CSS Sparkline yoÄŸunluk hesabÄ± (Maksimum 600 adete gÃ¶re Ã§ubuk uzunluÄŸu ayarlanÄ±r)
+                const densityPercent = Math.min((item.miktar / 600) * 100, 100);
+
+                return (
+                  <tr key={idx} className="align-middle">
+                    <td
+                      className="font-mono"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      #{idx + 1}
+                    </td>
+                    <td className="font-mono fw-bold text-white">{item.kod}</td>
+                    <td>
+                      <div className="fw-semibold text-white">{item.ad}</div>
+                      <div
+                        style={{
+                          fontSize: "0.72rem",
+                          color: "var(--text-secondary)",
+                        }}
+                      >
+                        Stok kaydÄ± aktif
+                      </div>
+                    </td>
+                    <td>
+                      <span
+                        className="badge-erp badge-in"
+                        style={{
+                          backgroundColor: "rgba(255,255,255,0.03)",
+                          color: "var(--text-primary)",
+                          border: "1px solid var(--border-color)",
+                        }}
+                      >
+                        {item.tur}
+                      </span>
+                    </td>
+                    <td style={{ color: "var(--text-secondary)" }}>
+                      {item.mensei}
+                    </td>
+                    <td
+                      className="font-mono"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      {item.hareketTarihi || "-"}
+                    </td>
+                    <td className="text-end">
+                      <div
+                        className="font-mono fw-bold"
+                        style={{ color: quantityColor }}
+                      >
+                        {prefix}
+                        {item.miktar} Adet
+                      </div>
+                      {/* CSS Mini Bar Grafik */}
+                      <div className="d-flex justify-content-end">
+                        <div
+                          className="density-bar-bg"
+                          style={{ width: "80px" }}
+                        >
+                          <div
+                            className="density-bar-fill"
+                            style={{
+                              width: `${densityPercent}%`,
+                              backgroundColor: quantityColor,
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td
+                  colSpan="7"
+                  className="text-center py-5 font-mono"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Arama kriterlerine uygun kayÄ±t bulunamadÄ±.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
+
+
+==== \src\components\HareketSayfasi.jsx ====
+import React, { useState, useEffect } from "react";
+import api from "../api/axiosInstance";
+
+const HareketSayfasi = () => {
+  const [malzemeler, setMalzemeler] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [hareketler, setHareketler] = useState([
+    {
+      id: 1,
+      kod: "MLZ001",
+      ad: "Pelet Cevher",
+      islem: "GELEN",
+      miktar: 150,
+      depo: "A SAHASI",
+      tarih: "2026-07-09",
+    },
+    {
+      id: 2,
+      kod: "MLZ002",
+      ad: "Sinter",
+      islem: "URETIM",
+      miktar: 300,
+      depo: "SÄ°NTER DEPO",
+      tarih: "2026-07-09",
+    },
+  ]);
+  const [formData, setFormData] = useState({
+    malzemeId: "",
+    islem: "GELEN",
+    miktar: "",
+    depo: "ANA DEPO",
+  });
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const malRes = await api.get("/malzemeler");
+      if (malRes.data && malRes.data.length > 0) setMalzemeler(malRes.data);
+
+      const harRes = await api.get("/hareketler");
+      if (harRes.data && harRes.data.length > 0) setHareketler(harRes.data);
+    } catch (e) {
+      setMalzemeler([
+        { id: 1, kod: "MLZ001", ad: "Pelet Cevher" },
+        { id: 2, kod: "MLZ002", ad: "Sinter" },
+        { id: 3, kod: "MLZ003", ad: "KireÃ§ TaÅŸÄ±" },
+      ]);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      // VeritabanÄ± sÃ¼tunlarÄ±yla (MLZ_ID, HAREKET_TURU, MIKTAR, OPER vb.) tam eÅŸleme
+      await api.post("/hareketler", {
+        mlz_id: formData.malzemeId,
+        hareket_turu: formData.islem,
+        miktar: formData.miktar,
+        depo: formData.depo,
+        oper: "SYSTEM", // DB: OPER kolonu arka planda otomatik gÃ¶nderiliyor
+      });
+      alert("Stok hareketi baÅŸarÄ±yla iÅŸlendi.");
+      setFormData({
+        malzemeId: "",
+        islem: "GELEN",
+        miktar: "",
+        depo: "ANA DEPO",
+      });
+      fetchData();
+    } catch (e) {
+      alert("KayÄ±t baÅŸarÄ±sÄ±z.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="erp-container" style={{ maxWidth: "980px" }}>
+      <h2 className="erp-title">Stok Hareket YÃ¶netimi</h2>
+
+      <form
+        onSubmit={handleSubmit}
+        className="mb-5 p-4 rounded"
+        style={{
+          backgroundColor: "rgba(255,255,255,0.01)",
+          border: "1px solid rgba(255,255,255,0.04)",
+        }}
+      >
+        <h4 className="mb-4 text-white" style={{ fontSize: "0.9rem" }}>
+          [+] Yeni Stok Hareketi TanÄ±mla
+        </h4>
+        <div className="row g-2 mb-3">
+          <div className="col-md-3">
+            <label className="form-label">MALZEME</label>
+            <select
+              className="form-select"
+              value={formData.malzemeId}
+              onChange={(e) =>
+                setFormData({ ...formData, malzemeId: e.target.value })
+              }
+              required
+            >
+              <option value="">SeÃ§iniz...</option>
+              {malzemeler.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.ad} ({m.kod})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-md-3">
+            <label className="form-label">HAREKET TÃœRÃœ</label>
+            <select
+              className="form-select"
+              value={formData.islem}
+              onChange={(e) =>
+                setFormData({ ...formData, islem: e.target.value })
+              }
+            >
+              <option value="GELEN">GELEN (ALINAN)</option>
+              <option value="URETIM">ÃœRETÄ°M</option>
+              <option value="TUKETIM">TÃœKETÄ°M</option>
+              <option value="SATIS">SATIÅ (Ã‡IKAN)</option>
+            </select>
+          </div>
+          <div className="col-md-3">
+            <label className="form-label">MÄ°KTAR</label>
+            <input
+              type="number"
+              className="form-control"
+              placeholder="Miktar"
+              value={formData.miktar}
+              onChange={(e) =>
+                setFormData({ ...formData, miktar: e.target.value })
+              }
+              required
+            />
+          </div>
+          <div className="col-md-3">
+            <label className="form-label">DEPO / LOKASYON</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Ã–rn: B SAHASI"
+              value={formData.depo}
+              onChange={(e) =>
+                setFormData({ ...formData, depo: e.target.value })
+              }
+              required
+            />
+          </div>
+        </div>
+        <div className="text-end">
+          <button type="submit" className="btn" disabled={loading}>
+            Hareketi Kaydet
+          </button>
+        </div>
+      </form>
+
+
+      <h4 className="mb-3 text-white" style={{ fontSize: "0.95rem" }}>
+        Son Stok Hareket LoglarÄ±
+      </h4>
+      <div className="table-responsive">
+        <table className="table table-striped w-100">
+          <thead>
+            <tr>
+              <th style={{ width: "80px" }}>REF</th>
+              <th>MALZEME</th>
+              <th>HAREKET</th>
+              <th>DEPO</th>
+              <th>TARÄ°H</th>
+              <th className="text-end">MÄ°KTAR</th>
+            </tr>
+          </thead>
+          <tbody>
+            {hareketler.map((h, idx) => {
+              const isNegative = h.islem === "SATIS" || h.islem === "TUKETIM";
+              const prefix = isNegative ? "-" : "+";
+              const quantityColor = isNegative
+                ? "var(--danger-accent)"
+                : "var(--success-accent)";
+
+              return (
+                <tr key={h.id || idx}>
+                  <td className="font-mono text-muted">#{idx + 1}</td>
+                  <td className="fw-semibold text-white">
+                    {h.ad} ({h.kod})
+                  </td>
+                  <td>
+                    <span className="badge-erp">{h.islem}</span>
+                  </td>
+                  <td style={{ color: "var(--text-secondary)" }}>{h.depo}</td>
+                  <td className="font-mono text-muted">{h.tarih}</td>
+                  <td
+                    className="text-end font-mono fw-bold"
+                    style={{ color: quantityColor }}
+                  >
+                    {prefix}
+                    {h.miktar} Adet
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default HareketSayfasi;
+
+
+==== \src\components\MalzemeListe.jsx ====
+import React, { useState, useEffect } from "react";
+import api from "../api/axiosInstance";
+
+const MalzemeListe = () => {
+  const [data, setData] = useState([]);
+  const [search, setSearch] = useState("");
+  const [selectedTur, setSelectedTur] = useState("");
+  const [isOffline, setIsOffline] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("http://localhost:8080/api/malzeme");
+
+      if (response.data) {
+        setData(response.data);
+      }
+      setIsOffline(false);
+    } catch (error) {
+      setIsOffline(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // DÃœZELTME: item.ad yerine item.adi kullanÄ±lÄ±yor
+  const filteredData = data.filter((item) => {
+    const matchesSearch = search === "" ||
+      (item.adi && item.adi.toLowerCase().includes(search.toLowerCase())) ||
+      (item.kod && item.kod.toLowerCase().includes(search.toLowerCase()));
+      
+    const matchesTur = selectedTur === "" || item.tur === selectedTur;
+
+    const matchesUpdate = item.matchesUpdate;
+    
+
+    return matchesSearch && matchesTur;
+  });
+
+  const totalFlows = data.length;
+  
+  const totalQuantity = data.reduce(
+    (sum, item) =>
+      sum +
+      (item.islem === "SATIS" || item.islem === "CIKIS" || item.islem === "TUKETIM"
+        ? -(item.miktar || 0)
+        : (item.miktar || 0)),
+    0
+  );
+
+  const activeKinds = Array.from(
+    new Set(data.map((item) => item.tur).filter(Boolean))
+  ).length;
+
+  if (loading) {
+    return (
+      <div className="erp-container d-flex justify-content-center align-items-center" style={{ minHeight: "400px" }}>
+        <div className="text-center">
+          <div className="spinner-border text-light mb-3" role="status"></div>
+          <h4 className="text-white">VeritabanÄ±ndan bilgiler alÄ±nÄ±yor...</h4>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="erp-container">
+      {/* BaÅŸlÄ±k ve Durum GÃ¶stergesi */}
+      <div
+        className="d-flex justify-content-between align-items-center border-bottom border-secondary pb-3 mb-4"
+        style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
+      >
+        <h2
+          className="m-0 border-0 p-0 text-white"
+          style={{ fontSize: "1.25rem", fontWeight: 700 }}
+        >
+          â–  ENVANTER GENEL RAPORU
+        </h2>
+        <div className="d-flex align-items-center">
+          <span className={`pulse-led ${isOffline ? "led-orange" : "led-green"}`}></span>
+          <span
+            className="font-mono"
+            style={{
+              fontSize: "0.75rem",
+              color: isOffline ? "#f59e0b" : "#10b981",
+              marginLeft: "8px"
+            }}
+          >
+            {isOffline ? "BAÄLANTI HATASI" : "SÄ°STEM AKTÄ°F"}
+          </span>
+        </div>
+      </div>
+
+      {/* Ãœst Ä°statistik KartlarÄ± */}
+      <div className="row g-3 mb-5">
+        <div className="col-md-4">
+          <div className="metric-card">
+            <span
+              style={{
+                fontSize: "0.72rem",
+                color: "#a1a1aa",
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Toplam KayÄ±t SayÄ±sÄ±
+            </span>
+            <h3
+              className="m-0 mt-2 font-mono text-white fw-bold"
+              style={{ fontSize: "1.8rem" }}
+            >
+              {totalFlows}
+            </h3>
+            <span style={{ fontSize: "0.68rem", color: "#10b981", fontWeight: 600 }}>
+              GerÃ§ek zamanlÄ± veri
+            </span>
+          </div>
+        </div>
+        
+        <div className="col-md-4">
+          <div className="metric-card">
+            <span
+              style={{
+                fontSize: "0.72rem",
+                color: "#a1a1aa",
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Net Stok Hacmi
+            </span>
+            <h3
+              className="m-0 mt-2 font-mono text-white fw-bold"
+              style={{ fontSize: "1.8rem" }}
+            >
+              {totalQuantity} <span style={{ fontSize: "0.9rem", color: "#a1a1aa" }}>Adet</span>
+            </h3>
+            <span style={{ fontSize: "0.68rem", color: "#8b5cf6", fontWeight: 600 }}>
+              GiriÅŸ/Ã‡Ä±kÄ±ÅŸ hesaplanmÄ±ÅŸ net deÄŸer
+            </span>
+          </div>
+        </div>
+        
+        <div className="col-md-4">
+          <div className="metric-card">
+            <span
+              style={{
+                fontSize: "0.72rem",
+                color: "#a1a1aa",
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Aktif Kategori Ã‡eÅŸidi
+            </span>
+            <h3
+              className="m-0 mt-2 font-mono text-white fw-bold"
+              style={{ fontSize: "1.8rem" }}
+            >
+              {activeKinds} <span style={{ fontSize: "0.9rem", color: "#a1a1aa" }}>Kategori</span>
+            </h3>
+            <span style={{ fontSize: "0.68rem", color: "#a1a1aa", fontWeight: 600 }}>
+              TÃ¼m depolarda aktif
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Arama ve Filtreleme BÃ¶lÃ¼mÃ¼ */}
+      <div className="row g-3 mb-4 align-items-end">
+        <div className="col-md-7">
+          <label className="form-label text-white-50">AkÄ±llÄ± Arama</label>
+          <input
+            type="text"
+            className="form-control mb-0"
+            placeholder="Malzeme adÄ± veya kod ile arayÄ±n..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="col-md-5">
+          <label className="form-label text-white-50">Kategori Filtresi</label>
+          <select
+            className="select form-select mb-0"
+            value={selectedTur}
+            onChange={(e) => setSelectedTur(e.target.value)}
+          >
+            <option value="">TÃœM KATEGORÄ°LER</option>
+            {Array.from(new Set(data.map((item) => item.tur).filter(Boolean))).map((t, idx) => (
+              <option key={idx} value={t}>
+                {t.toUpperCase()}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Veri Tablosu */}
+      <div className="table-responsive">
+        <table className="table table-dark table-striped table-hover w-100">
+          <thead>
+            <tr>
+              <th style={{ width: "80px", color: "#a1a1aa" }}>ID</th>
+              <th style={{ width: "130px", color: "#a1a1aa" }}>KOD</th>
+              <th style={{ color: "#a1a1aa" }}>MALZEME TANIMI / ADI</th>
+              <th style={{ width: "130px", color: "#a1a1aa" }}>TÃœRÃœ</th>
+              <th style={{ width: "100px", color: "#a1a1aa" }}>MENÅEÄ°</th>
+              <th style={{ width: "140px", color: "#a1a1aa" }}>Ä°ÅLEM TARÄ°HÄ°</th>
+              <th className="text-end" style={{ width: "180px", color: "#a1a1aa" }}>
+                MÄ°KTAR / HAREKET
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredData.length > 0 ? (
+              filteredData.map((item, idx) => {
+                const isNegative =
+                  item.islem === "SATIS" ||
+                  item.islem === "CIKIS" ||
+                  item.islem === "TUKETIM";
+                const prefix = isNegative ? "-" : "+";
+                const quantityColor = isNegative ? "#ef4444" : "#10b981";
+
+                const densityPercent = Math.min(((item.miktar || 0) / 600) * 100, 100);
+
+                return (
+                  <tr key={item.id || idx} className="align-middle">
+                    <td className="font-mono text-secondary">
+                      #{item.id || idx + 1}
+                    </td>
+                    <td className="font-mono fw-bold text-white">
+                      {item.kod || "-"}
+                    </td>
+                    <td>
+                      {/* DÃœZELTME: item.ad yerine item.adi kullanÄ±lÄ±yor */}
+                      <div className="fw-semibold text-white">
+                        {item.adi || "Ä°simsiz Malzeme"}
+                      </div>
+                      <div style={{ fontSize: "0.72rem", color: "#a1a1aa" }}>
+                        Ä°ÅŸlem Tipi: {item.islem || "Bilinmiyor"}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="badge bg-secondary text-light">
+                        {item.tur || "-"}
+                      </span>
+                    </td>
+                    <td className="text-secondary">
+                      {item.mensei || "-"}
+                    </td>
+                    <td className="font-mono text-secondary">
+                      {item.hareketTarihi || "-"}
+                    </td>
+                    <td className="text-end">
+                      <div
+                        className="font-mono fw-bold mb-1"
+                        style={{ color: quantityColor }}
+                      >
+                        {prefix}{item.miktar || 0} Adet
+                      </div>
+                      <div className="d-flex justify-content-end">
+                        <div
+                          style={{
+                            width: "80px",
+                            height: "6px",
+                            backgroundColor: "rgba(255,255,255,0.1)",
+                            borderRadius: "3px",
+                            overflow: "hidden"
+                          }}
+                        >
+                          <div
+                            style={{
+                              height: "100%",
+                              width: `${densityPercent}%`,
+                              backgroundColor: quantityColor,
+                              transition: "width 0.3s ease"
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td
+                  colSpan="7"
+                  className="text-center py-5 font-mono text-secondary"
+                >
+                  Arama kriterlerine uygun malzeme bulunamadÄ± veya veritabanÄ± boÅŸ.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default MalzemeListe;
+
+
+==== \src\components\MalzemeTanim.jsx ====
+import React, { useState, useEffect } from "react";
+import api from "../api/axiosInstance";
+
+const MalzemeTanim = () => {
+  const [formData, setFormData] = useState({
+    kod: "",
+    ad: "",
+    mensei: "Yerli",
+    turId: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [turler, setTurler] = useState([
+    { id: 1, tur: "Cevher" },
+    { id: 2, tur: "Ara ÃœrÃ¼n" },
+    { id: 3, tur: "KatkÄ±" },
+  ]);
+  const [malzemeler, setMalzemeler] = useState([
+    {
+      id: 1,
+      kod: "MLZ001",
+      ad: "Pelet Cevher",
+      tur: "Cevher",
+      mensei: "Yerli",
+    },
+    { id: 2, kod: "MLZ002", ad: "Sinter", tur: "Ara ÃœrÃ¼n", mensei: "Ä°thal" },
+  ]);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const turRes = await api.get("/turler");
+      if (turRes.data && turRes.data.length > 0) setTurler(turRes.data);
+
+      const malRes = await api.get("/malzemeler");
+      if (malRes.data && malRes.data.length > 0) setMalzemeler(malRes.data);
+    } catch (e) {
+      console.warn("Ã‡evrimdÄ±ÅŸÄ± mod aktif.");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await api.post("/malzemeler", {
+        malzeme_kodu: formData.kod,
+        malzeme_adi: formData.ad,
+        mensei: formData.mensei,
+        malzeme_tur_id: formData.turId,
+        oper: "SYSTEM", // DB: OPER kolonu arka planda otomatik gÃ¶nderiliyor
+      });
+      alert("Malzeme baÅŸarÄ±yla kaydedildi.");
+      setFormData({ kod: "", ad: "", mensei: "Yerli", turId: "" });
+      fetchData();
+    } catch (error) {
+      alert("KayÄ±t baÅŸarÄ±sÄ±z oldu.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  return (
+    <div className="erp-container" style={{ maxWidth: "980px" }}>
+      <h2 className="erp-title">Malzeme TanÄ±mlama EkranÄ±</h2>
+
+      <form
+        onSubmit={handleSubmit}
+        className="mb-5 p-4 rounded"
+        style={{
+          backgroundColor: "rgba(255,255,255,0.01)",
+          border: "1px solid rgba(255,255,255,0.04)",
+        }}
+      >
+        <h4 className="mb-4 text-white" style={{ fontSize: "0.9rem" }}>
+          [+] Yeni Malzeme TanÄ±mÄ± (DB: MALZEME_TANIM_TBL)
+        </h4>
+        <div className="row g-2 mb-3">
+          <div className="col-md-3">
+            <label className="form-label">KOD</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Ã–rn: MLZ001"
+              value={formData.kod}
+              onChange={(e) =>
+                setFormData({ ...formData, kod: e.target.value })
+              }
+              required
+            />
+          </div>
+          <div className="col-md-3">
+            <label className="form-label">MALZEME ADI</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Ã–rn: PELET CEVHER"
+              value={formData.ad}
+              onChange={(e) => setFormData({ ...formData, ad: e.target.value })}
+              required
+            />
+          </div>
+          <div className="col-md-3">
+            <label className="form-label">MALZEME TÃœRÃœ</label>
+            <select
+              className="form-select"
+              value={formData.turId}
+              onChange={(e) =>
+                setFormData({ ...formData, turId: e.target.value })
+              }
+              required
+            >
+              <option value="">SeÃ§iniz...</option>
+              {turler.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.tur.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-md-3">
+            <label className="form-label">MENÅEÄ°</label>
+            <select
+              className="form-select"
+              value={formData.mensei}
+              onChange={(e) =>
+                setFormData({ ...formData, mensei: e.target.value })
+              }
+            >
+              <option value="Yerli">Yerli</option>
+              <option value="Ä°thal">Ä°thal</option>
+            </select>
+          </div>
+        </div>
+        <div className="text-end">
+          <button type="submit" className="btn" disabled={loading}>
+            Sisteme Kaydet
+          </button>
+        </div>
+
+      </form>
+
+      <h4 className="mb-3 text-white" style={{ fontSize: "0.95rem" }}>
+        TanÄ±mlÄ± Malzemeler Listesi
+      </h4>
+      <div className="table-responsive">
+        <table className="table table-striped w-100">
+          <thead>
+            <tr>
+              <th style={{ width: "80px" }}>REF</th>
+              <th>MALZEME KODU</th>
+              <th>MALZEME ADI</th>
+              <th>TÃœRÃœ</th>
+              <th>MENÅEÄ°</th>
+            </tr>
+          </thead>
+          <tbody>
+            {malzemeler.map((m, idx) => (
+              <tr key={m.id || idx}>
+                <td className="font-mono text-muted">#{idx + 1}</td>
+                <td className="font-mono fw-bold text-white">{m.kod}</td>
+                <td className="fw-semibold text-white">{m.ad}</td>
+                <td>
+                  <span className="badge-erp">{m.tur}</span>
+                </td>
+                <td style={{ color: "var(--text-secondary)" }}>{m.mensei}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default MalzemeTanim;
+
+
+==== \src\components\TurTanim.jsx ====
+import React, { useState, useEffect } from "react";
+import api from "../api/axiosInstance";
+
+const TurTanim = () => {
+  const [tur, setTur] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [expandedIdx, setExpandedIdx] = useState(null); // Akordeon kontrolÃ¼
+
+  const [turler, setTurler] = useState([
+    {
+      id: 1,
+      tur: "Cevher",
+      uretilen: "SÄ±vÄ± Ham Demir",
+      tesis: "YÃ¼ksek FÄ±rÄ±nlar (Blast Furnace)",
+      kaynak:
+        "Yerli Sivas-DivriÄŸi & Malatya-Hekimhan madenleri ve Brezilya/Avustralya ithalatÄ±.",
+    },
+    {
+      id: 2,
+      tur: "KÃ¶mÃ¼r",
+      uretilen: "MetalÃ¼rjik Kok KÃ¶mÃ¼rÃ¼",
+      tesis: "Kok BataryalarÄ±",
+      kaynak:
+        "Zonguldak yerli taÅŸ kÃ¶mÃ¼rÃ¼ havzasÄ± ve Kolombiya/Avustralya ithal koklaÅŸabilir kÃ¶mÃ¼rleri.",
+    },
+    {
+      id: 3,
+      tur: "Sinter",
+      uretilen: "YÃ¼ksek FÄ±rÄ±n Åarj Malzemesi",
+      tesis: "Sinterleme Tesisi",
+      kaynak:
+        "Ä°sdemir Sinter FabrikasÄ±nda demir cevheri tozlarÄ± ve kireÃ§taÅŸÄ±nÄ±n piÅŸirilmesiyle tesis iÃ§i Ã¼retilir.",
+    },
+    {
+      id: 4,
+      tur: "Toz",
+      uretilen: "Geri KazanÄ±lmÄ±ÅŸ Hammadde / Briket",
+      tesis: "Toz Tutma ve Geri KazanÄ±m",
+      kaynak:
+        "Haddehane ve fÄ±rÄ±n baca filtre sistemlerinden geri dÃ¶nÃ¼ÅŸtÃ¼rÃ¼lÃ¼r.",
+    },
+  ]);
+
+  useEffect(() => {
+    fetchTurler();
+  }, []);
+
+  const fetchTurler = async () => {
+    try {
+      const res = await api.get("/turler");
+      if (res.data && res.data.length > 0) {
+        setTurler(res.data);
+      }
+    } catch (e) {
+      console.warn("Mock tÃ¼r bilgileri aktif.");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!tur.trim()) return;
+    setLoading(true);
+    try {
+      // VeritabanÄ±nÄ±n beklediÄŸi ÅŸemaya uygun gÃ¶nderim (MALZEME_TURU ve OPER)
+      await api.post("/turler", {
+        malzeme_turu: tur,
+        oper: "SYSTEM", // DB: OPER kolonu arka planda otomatik gÃ¶nderiliyor
+      });
+      alert("Yeni tÃ¼r baÅŸarÄ±yla kaydedildi.");
+      setTur("");
+      fetchTurler();
+    } catch (error) {
+      alert("KayÄ±t baÅŸarÄ±sÄ±z oldu.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Ä°sdemir Ã¼retim akÄ±ÅŸ detaylarÄ± sÃ¶zlÃ¼ÄŸÃ¼
+  const FLOW_DETAILS = {
+    cevher: {
+      nelerYapilir: "Cevher, yÃ¼ksek sÄ±caklÄ±kta kok kÃ¶mÃ¼rÃ¼ ve sinter ile reaksiyona sokularak ergimiÅŸ SÄ±vÄ± Demir (Pik Demir) haline getirilir. Bu sÄ±vÄ± demir daha sonra Ã‡elikhanede Ã§eliÄŸe dÃ¶nÃ¼ÅŸtÃ¼rÃ¼lÃ¼r.",
+      neredenBulunur: "Yerli kaynak olarak Sivas (DivriÄŸi) ve Malatya (Hekimhan) maden sahalarÄ±ndan tren yollarÄ±yla taÅŸÄ±nÄ±r. YÃ¼ksek fÄ±rÄ±n kalitesini dengelemek iÃ§in Brezilya ve Avustralya'dan gemilerle limana getirilen ithal pelet cevherler de harmanlanÄ±r."
+    },
+    kÃ¶mÃ¼r: {
+      nelerYapilir: "FÄ±rÄ±nlarda doÄŸrudan kÃ¶mÃ¼r yakÄ±lamayacaÄŸÄ± iÃ§in, koklaÅŸabilir kÃ¶mÃ¼rler kok bataryalarÄ±nda 1000Â°C'de havasÄ±z ortamda piÅŸirilerek gÃ¶zenekli ve yÃ¼ksek mukavemetli Kok KÃ¶mÃ¼rÃ¼ Ã¼retilir. FÄ±rÄ±nÄ±n hem yakÄ±tÄ± hem de indirgeyici maddesidir.",
+      neredenBulunur: "Zonguldak taÅŸ kÃ¶mÃ¼rÃ¼ havzasÄ±ndan tedarik edilir. KoklaÅŸma kalitesini artÄ±rmak amacÄ±yla Ã§oÄŸunlukla Avustralya, ABD ve Kolombiya'dan ithal edilen metalÃ¼rjik kÃ¶mÃ¼rlerle karÄ±ÅŸtÄ±rÄ±larak kullanÄ±lÄ±r."
+    },
+    sinter: {
+      nelerYapilir: "FÄ±rÄ±n iÃ§erisinde gaz geÃ§irgenliÄŸini artÄ±rmak iÃ§in Ã§ok ince toz cevherler doÄŸrudan fÄ±rÄ±na atÄ±lamaz. Sinter tesisinde toz cevherler, kireÃ§taÅŸÄ± ve kok tozuyla harmanlanÄ±p piÅŸirilerek fÄ±rÄ±na uygun gÃ¶zenekli sinter keki haline getirilir.",
+      neredenBulunur: "Ä°sdemir bÃ¼nyesinde yer alan 1. ve 2. Sinter Tesislerinde (tesis iÃ§i) kesintisiz olarak Ã¼retilir."
+    },
+    toz: {
+      nelerYapilir: "Ã‡elik Ã¼retimi esnasÄ±nda baca gazÄ± filtrelerinde biriken demir ve Ã§inko tozlarÄ± toplanarak briket haline getirilir ve sinterleme sÃ¼recine geri beslenerek hammadde kaybÄ± Ã¶nlenir.",
+      neredenBulunur: "YÃ¼ksek FÄ±rÄ±n baca gazÄ± temizleme tesisleri ve Ã‡elikhane ikincil toz toplama sistemlerinden (tesis iÃ§i geri kazanÄ±m) saÄŸlanÄ±r."
+    }
+  };
+
+  const getIsdemirFlowDetails = (turAdi) => {
+    const matchedKey = Object.keys(FLOW_DETAILS).find(key => turAdi.toLowerCase().includes(key));
+    return FLOW_DETAILS[matchedKey] || {
+      nelerYapilir: "Ä°sdemir fabrikasÄ± genelinde ikincil haddehane girdisi veya refrakter malzemesi olarak deÄŸerlendirilir.",
+      neredenBulunur: "Tesis iÃ§i stok sahalarÄ±ndan veya yerli tedarikÃ§ilerden saÄŸlanÄ±r."
+    };
+  };
+
+  const toggleAccordion = (idx) => {
+    setExpandedIdx(expandedIdx === idx ? null : idx);
+  };
+
+  return (
+    <div className="erp-container" style={{ maxWidth: "950px" }}>
+      <h2 className="erp-title">Malzeme TÃ¼r TanÄ±mlama</h2>
+
+      <div className="row g-4">
+        {/* Sol Kolon - VeritabanÄ± Uyumlu Form */}
+        <div
+          className="col-md-5 border-end border-secondary pe-4"
+          style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
+        >
+          <h4 className="mb-4 text-white" style={{ fontSize: "0.95rem" }}>
+            [+] Yeni TÃ¼r TanÄ±mÄ± (DB: MALZEME_TUR_TANIM_TBL)
+          </h4>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="form-label">TÃ¼r AdÄ±</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Ã–rn: SÄ°NTER, KÃ–MÃœR"
+                value={tur}
+                onChange={(e) => setTur(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" className="btn w-100" disabled={loading}>
+              {loading ? "Kaydediliyor..." : "TÃ¼r TanÄ±mÄ±nÄ± Ekle"}
+            </button>
+          </form>
+
+        </div>
+
+        {/* SaÄŸ Kolon - TÄ±klanÄ±nca AÃ§Ä±lan Akordeon Liste */}
+        <div className="col-md-7 ps-4">
+          <h4 className="mb-4 text-white" style={{ fontSize: "0.95rem" }}>
+            TÃ¼rler ve Ä°sdemir AkÄ±ÅŸ DetaylarÄ± (TÄ±klayarak AÃ§Ä±n)
+          </h4>
+
+          <div className="d-flex flex-column gap-3">
+            {turler.map((t, idx) => {
+              const details = getIsdemirFlowDetails(t.tur);
+              const isExpanded = expandedIdx === idx;
+
+              return (
+                <div
+                  key={idx}
+                  className="rounded"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.02)",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                    overflow: "hidden",
+                  }}
+                >
+                  {/* Akordeon BaÅŸlÄ±k KÄ±smÄ± */}
+                  <div
+                    className="p-3 d-flex justify-content-between align-items-center cursor-pointer"
+                    style={{ cursor: "pointer", userSelect: "none" }}
+                    onClick={() => toggleAccordion(idx)}
+                  >
+                    <div className="d-flex align-items-center gap-2">
+                      <span className="badge-erp">{t.tur.toUpperCase()}</span>
+                      <span
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "var(--text-secondary)",
+                        }}
+                      >
+                        {t.tesis || "Ä°sdemir Birimi"}
+                      </span>
+                    </div>
+                    <span className="text-muted" style={{ fontSize: "0.8rem" }}>
+                      {isExpanded ? "â–² Kapat" : "â–¼ Detaylar"}
+                    </span>
+                  </div>
+
+                  {/* Akordeon Detay AlanÄ± (Animasyonlu ve AÃ§Ä±lÄ±r) */}
+                  {isExpanded && (
+                    <div
+                      className="p-3 border-top border-secondary animate-fade-in"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.15)",
+                        borderColor: "rgba(255,255,255,0.05) !important",
+                      }}
+                    >
+                      <div className="mb-3">
+                        <strong
+                          className="text-white d-block mb-1"
+                          style={{ fontSize: "0.75rem" }}
+                        >
+                          Ä°SDEMÄ°R'DE NELER ÃœRETÄ°LÄ°R / NE Ä°ÅE YARAR?
+                        </strong>
+                        <p
+                          className="m-0"
+                          style={{
+                            fontSize: "0.8rem",
+                            color: "var(--text-secondary)",
+                            lineHeight: "1.4",
+                          }}
+                        >
+                          {details.nelerYapilir}
+                        </p>
+                      </div>
+                      <div>
+                        <strong
+                          className="text-white d-block mb-1"
+                          style={{ fontSize: "0.75rem" }}
+                        >
+                          NEREDEN VE NASIL TEMÄ°N EDÄ°LÄ°R?
+                        </strong>
+                        <p
+                          className="m-0"
+                          style={{
+                            fontSize: "0.8rem",
+                            color: "var(--text-secondary)",
+                            lineHeight: "1.4",
+                          }}
+                        >
+                          {t.kaynak || details.neredenBulunur}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TurTanim;
+
+
