@@ -14,6 +14,8 @@ const MalzemeTanim = () => {
   const [turler, setTurler] = useState([]);
   const [malzemeler, setMalzemeler] = useState([]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   // Sayfa yüklendiğinde verileri çek
   useEffect(() => {
     fetchData();
@@ -99,6 +101,18 @@ const MalzemeTanim = () => {
     }
   };
 
+  const filteredMalzemeler = malzemeler.filter((m) => {
+    const aranan = searchQuery.toLowerCase();
+    
+    // Verilerin boş gelme ihtimaline karşı varsayılan olarak boş metin ("") atıyoruz
+    const ad = m.malzemeAdi?.toLowerCase() || "";
+    const kod = m.malzemeKodu?.toLowerCase() || "";
+    const tur = m.malzemeTurAdi?.toLowerCase() || "";
+    const mensei = m.mensei?.toLowerCase() || "";
+    
+    // Dört farklı alanda arama yapıyoruz
+    return ad.includes(aranan) || kod.includes(aranan) || tur.includes(aranan) || mensei.includes(aranan);
+  });
   return (
     <div className="erp-container" style={{ maxWidth: "980px" }}>
       <h2 className="erp-title">Malzeme Tanımlama Ekranı</h2>
@@ -174,24 +188,47 @@ const MalzemeTanim = () => {
         </div>
       </form>
 
-      <h4 className="mb-3 text-white" style={{ fontSize: "0.95rem" }}>
-        Tanımlı Malzemeler Listesi
-      </h4>
-      <div className="table-responsive">
-        <table className="table table-striped w-100">
-          <thead>
+      {/* Arama Kutusu ve Başlık */}
+      <div className="d-flex justify-content-between align-items-end mb-3">
+        <h4 className="mb-0 text-white" style={{ fontSize: "0.95rem" }}>
+          Tanımlı Malzemeler Listesi
+        </h4>
+        <div style={{ width: "300px" }}>
+          Ara:
+          <input
+            type="text"
+            className="form-control form-control-sm mb-0"
+            placeholder="Malzeme veya kod ara..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+      
+      {/* Scroll Özellikli Tablo */}
+      <div 
+        className="table-responsive rounded p-1"
+        style={{ 
+          backgroundColor: "rgba(0,0,0,0.1)", 
+          border: "1px solid rgba(255,255,255,0.05)",
+          height: "400px",
+          overflowY: "scroll" 
+        }}
+      >
+        <table className="table table-striped w-100 m-0">
+          <thead style={{ position: "sticky", top: 0, zIndex: 10, backgroundColor: "#1e1e2d" }}>
             <tr>
               <th style={{ width: "80px" }}>ID</th>
               <th>KODU</th>
               <th>ADI</th>
               <th>TÜRÜ</th>
               <th>MENŞEİ</th>
-              <th className="text-end">İŞLEM</th>
+              <th className="text-end" style={{ minWidth: "140px" }}>İŞLEM</th>
             </tr>
           </thead>
           <tbody>
-            {malzemeler.length > 0 ? (
-              malzemeler.map((m) => (
+            {filteredMalzemeler.length > 0 ? (
+              filteredMalzemeler.map((m) => (
                 <tr key={m.id}>
                   <td className="font-mono text-muted">#{m.id}</td>
                   <td className="font-mono fw-bold text-white">{m.malzemeKodu}</td>
@@ -200,10 +237,11 @@ const MalzemeTanim = () => {
                     <span className="badge-erp">{m.malzemeTurAdi || "-"}</span>
                   </td>
                   <td style={{ color: "var(--text-secondary)" }}>{m.mensei}</td>
-                  <td className="text-end">
+                  <td className="text-end text-nowrap d-flex justify-content-end gap-2">
                     <button 
                       type="button"
-                      className="btn btn-sm btn-outline-info me-2 py-0 px-2" 
+                      className="btn btn-sm btn-outline-info py-0 px-2" 
+                      style={{ width: "75px" }}
                       onClick={() => handleEditClick(m)}
                     >
                       Düzenle
@@ -211,6 +249,7 @@ const MalzemeTanim = () => {
                     <button 
                       type="button"
                       className="btn btn-sm btn-outline-danger py-0 px-2" 
+                      style={{ width: "75px" }}
                       onClick={() => handleDelete(m.id)}
                     >
                       Sil
@@ -221,7 +260,7 @@ const MalzemeTanim = () => {
             ) : (
               <tr>
                 <td colSpan="6" className="text-center text-muted py-4">
-                  Kayıt bulunamadı.
+                  Arama kriterine uygun malzeme bulunamadı.
                 </td>
               </tr>
             )}

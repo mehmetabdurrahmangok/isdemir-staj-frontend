@@ -13,6 +13,9 @@ const HareketSayfasi = () => {
     miktar: "",
   });
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState("tarih-azalan");
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -90,6 +93,28 @@ const HareketSayfasi = () => {
     }
   };
 
+  const filteredHareketler = hareketler.filter((h) => {
+    const searchLower = searchQuery.toLowerCase();
+    const ad = h.malzeme?.malzemeAdi?.toLowerCase() || "";
+    const kod = h.malzeme?.malzemeKodu?.toLowerCase() || "";
+    const tur = h.hareketTuru?.toLowerCase() || "";
+    
+    return ad.includes(searchLower) || kod.includes(searchLower) || tur.includes(searchLower);
+  });
+
+  const sortedHareketler = [...filteredHareketler].sort((a, b) => {
+    if (sortOption === "tarih-azalan") {
+      return new Date(b.hareketTarihi) - new Date(a.hareketTarihi);
+    } else if (sortOption === "tarih-artan") {
+      return new Date(a.hareketTarihi) - new Date(b.hareketTarihi);
+    } else if (sortOption === "miktar-azalan") {
+      return b.miktar - a.miktar;
+    } else if (sortOption === "miktar-artan") {
+      return a.miktar - b.miktar;
+    }
+    return 0;
+  });
+
   return (
     <div className="erp-container" style={{ maxWidth: "980px" }}>
       <h2 className="erp-title">Stok Hareket Yönetimi</h2>
@@ -153,24 +178,56 @@ const HareketSayfasi = () => {
         </div>
       </form>
 
-      <h4 className="mb-3 text-white" style={{ fontSize: "0.95rem" }}>
-        Son Stok Hareket Logları
-      </h4>
-      <div className="table-responsive">
-        <table className="table table-striped w-100">
-          <thead>
+      <div className="d-flex justify-content-between align-items-end mb-3">
+        <h4 className="mb-0 text-white" style={{ fontSize: "0.95rem" }}>
+          Son Stok Hareket Logları
+        </h4>
+        <div className="d-flex gap-2" style={{ width: "450px" }}>
+          <select 
+            className="form-select form-select-sm mb-0" 
+            style={{ width: "170px" }}
+            value={sortOption} 
+            onChange={(e) => setSortOption(e.target.value)}
+          >
+            <option value="tarih-azalan">Tarih: En Yeni</option>
+            <option value="tarih-artan">Tarih: En Eski</option>
+            <option value="miktar-azalan">Miktar: En Yüksek</option>
+            <option value="miktar-artan">Miktar: En Düşük</option>
+          </select>
+          Arama:
+          <input
+            type="text"
+            className="form-control form-control-sm mb-0 flex-grow-1"
+            placeholder="Malzeme, kod veya işlem ara..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div 
+        className="table-responsive rounded p-1" 
+        style={{ 
+          backgroundColor: "rgba(0,0,0,0.1)", 
+          border: "1px solid rgba(255,255,255,0.05)",
+          height: "400px",
+          overflowY: "scroll" 
+        }}
+      >
+        <table className="table table-striped w-100 m-0">
+          <thead style={{ position: "sticky", top: 0, zIndex: 10, backgroundColor: "#1e1e2d" }}>
             <tr>
               <th style={{ width: "80px" }}>ID</th>
               <th>MALZEME</th>
               <th>HAREKET</th>
               <th>TARİH</th>
               <th className="text-end">MİKTAR</th>
-              <th className="text-end">İŞLEM</th>
+              <th className="text-end" style={{ minWidth: "140px" }}>İŞLEM</th>
             </tr>
           </thead>
           <tbody>
-            {hareketler.length > 0 ? (
-              hareketler.map((h) => {
+            {sortedHareketler.length > 0 ? (
+              sortedHareketler.map((h) => {
                 const isNegative = h.hareketTuru === "SATIS" || h.hareketTuru === "TUKETIM";
                 const prefix = isNegative ? "-" : "+";
                 const quantityColor = isNegative ? "var(--danger-accent)" : "var(--success-accent)";
@@ -187,10 +244,10 @@ const HareketSayfasi = () => {
                     <td className="text-end font-mono fw-bold" style={{ color: quantityColor }}>
                       {prefix}{h.miktar}
                     </td>
-                    <td className="text-end">
+                    <td className="text-end text-nowrap d-flex justify-content-end gap-2">
                       <button 
                         type="button" 
-                        className="btn btn-sm btn-outline-info me-2 py-0 px-2" 
+                        className="btn btn-sm btn-outline-info py-0 px-2" 
                         onClick={() => handleEditClick(h)}
                       >
                         Düzenle
@@ -207,7 +264,11 @@ const HareketSayfasi = () => {
                 );
               })
             ) : (
-              <tr><td colSpan="6" className="text-center text-muted py-4">Kayıtlı hareket bulunamadı.</td></tr>
+              <tr>
+                <td colSpan="6" className="text-center text-muted py-4">
+                  Arama veya sıralama kriterine uygun hareket bulunamadı.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
