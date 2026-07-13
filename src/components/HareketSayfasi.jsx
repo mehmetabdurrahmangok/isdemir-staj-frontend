@@ -6,12 +6,17 @@ const HareketSayfasi = () => {
   const [hareketler, setHareketler] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     malzemeId: "",
     islem: "GELEN",
     miktar: "",
   });
+  // Seçilen rapor tarihini ve raporlama yöntemini (Kümülatif vs Günlük) tutan değişkenler
+  const [reportDate, setReportDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+  const [reportType, setReportType] = useState("cumulative");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("tarih-azalan");
@@ -80,16 +85,73 @@ const HareketSayfasi = () => {
       alert("Geçersiz hareket ID'si.");
       return;
     }
-    
-    if (window.confirm("Bu stok hareketini silmek istediğinize emin misiniz? (Bu işlem ana malzemeyi etkilemez)")) {
+
+    if (
+      window.confirm(
+        "Bu stok hareketini silmek istediğinize emin misiniz? (Bu işlem ana malzemeyi etkilemez)",
+      )
+    ) {
       try {
         await api.delete(`/malzemeHareketleri/delete/${id}`);
         alert("Hareket başarıyla silindi.");
         fetchData();
       } catch (error) {
         console.error("Silme işlemi hatası:", error);
-        alert("Silme işlemi başarısız oldu. Sunucu ile bağlantınızı kontrol edin.");
+        alert(
+          "Silme işlemi başarısız oldu. Sunucu ile bağlantınızı kontrol edin.",
+        );
       }
+    }
+  };
+  const handleExcelExport = () => {
+    try {
+      // 1. Tarih kriterine göre hareket loglarını filtrele
+      const filtrelenmisHareketler = hareketler.filter((h) => {
+        const hareketTarihStr = h.hareketTarihi.split("T")[0]; // YYYY-MM-DD formatı
+
+        if (reportType === "cumulative") {
+          // O güne kadarki tüm hareket kayıtları
+          return (
+            new Date(h.hareketTarihi) <= new Date(reportDate + "T23:59:59")
+          );
+        } else {
+          // Sadece o gün yapılmış olan hareket kayıtları
+          return hareketTarihStr === reportDate;
+        }
+      });
+
+      // 2. CSV metnini oluşturma (Sütunlar noktalı virgülle ayrılır)
+      let csvContent =
+        "Hareket ID;Malzeme Kodu;Malzeme Adi;Islem Turu;Islem Tarihi;Miktar\n";
+
+      filtrelenmisHareketler.forEach((h) => {
+        const isNegative =
+          h.hareketTuru === "SATIS" || h.hareketTuru === "TUKETIM";
+        const miktarDegeri = isNegative ? `-${h.miktar}` : `+${h.miktar}`;
+        const tarihFormatli = new Date(h.hareketTarihi).toLocaleString("tr-TR");
+
+        csvContent += `${h.id};${h.malzeme?.malzemeKodu || "-"};${h.malzeme?.malzemeAdi || "-"};${h.hareketTuru};${tarihFormatli};${miktarDegeri}\n`;
+      });
+
+      // 3. UTF-8 BOM ile tarayıcıdan indirtme
+      const blob = new Blob(["\uFEFF" + csvContent], {
+        type: "text/csv;charset=utf-8;",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      const dosyaEki =
+        reportType === "cumulative" ? "KUMULATIF_LOGLAR" : "GUNLUK_LOGLAR";
+      link.setAttribute("download", `Isdemir_${dosyaEki}_${reportDate}.csv`);
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Excel oluşturma hatası:", error);
+      alert("Excel raporu oluşturulamadı.");
     }
   };
 
@@ -98,8 +160,12 @@ const HareketSayfasi = () => {
     const ad = h.malzeme?.malzemeAdi?.toLowerCase() || "";
     const kod = h.malzeme?.malzemeKodu?.toLowerCase() || "";
     const tur = h.hareketTuru?.toLowerCase() || "";
-    
-    return ad.includes(searchLower) || kod.includes(searchLower) || tur.includes(searchLower);
+
+    return (
+      ad.includes(searchLower) ||
+      kod.includes(searchLower) ||
+      tur.includes(searchLower)
+    );
   });
 
   const sortedHareketler = [...filteredHareketler].sort((a, b) => {
@@ -122,10 +188,15 @@ const HareketSayfasi = () => {
       <form
         onSubmit={handleSubmit}
         className="mb-5 p-4 rounded"
-        style={{ backgroundColor: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.04)" }}
+        style={{
+          backgroundColor: "rgba(255,255,255,0.01)",
+          border: "1px solid rgba(255,255,255,0.04)",
+        }}
       >
         <h4 className="mb-4 text-white" style={{ fontSize: "0.9rem" }}>
-          {editingId ? "[-] Stok Hareketini Güncelle" : "[+] Yeni Stok Hareketi Tanımla"}
+          {editingId
+            ? "[-] Stok Hareketini Güncelle"
+            : "[+] Yeni Stok Hareketi Tanımla"}
         </h4>
         <div className="row g-2 mb-3">
           <div className="col-md-4">
@@ -133,12 +204,16 @@ const HareketSayfasi = () => {
             <select
               className="form-select"
               value={formData.malzemeId}
-              onChange={(e) => setFormData({ ...formData, malzemeId: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, malzemeId: e.target.value })
+              }
               required
             >
               <option value="">Seçiniz...</option>
               {malzemeler.map((m) => (
-                <option key={m.id} value={m.id}>{m.malzemeAdi} ({m.malzemeKodu})</option>
+                <option key={m.id} value={m.id}>
+                  {m.malzemeAdi} ({m.malzemeKodu})
+                </option>
               ))}
             </select>
           </div>
@@ -147,7 +222,9 @@ const HareketSayfasi = () => {
             <select
               className="form-select"
               value={formData.islem}
-              onChange={(e) => setFormData({ ...formData, islem: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, islem: e.target.value })
+              }
             >
               <option value="GELEN">GELEN (ALINAN)</option>
               <option value="URETIM">ÜRETİM</option>
@@ -161,32 +238,80 @@ const HareketSayfasi = () => {
               type="number"
               className="form-control"
               value={formData.miktar}
-              onChange={(e) => setFormData({ ...formData, miktar: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, miktar: e.target.value })
+              }
               required
             />
           </div>
         </div>
         <div className="text-end d-flex justify-content-end gap-2">
           {editingId && (
-            <button type="button" className="btn btn-secondary-erp" onClick={handleCancelEdit}>
+            <button
+              type="button"
+              className="btn btn-secondary-erp"
+              onClick={handleCancelEdit}
+            >
               İptal
             </button>
           )}
           <button type="submit" className="btn" disabled={loading}>
-            {loading ? "İşleniyor..." : (editingId ? "Hareketi Güncelle" : "Hareketi Kaydet")}
+            {loading
+              ? "İşleniyor..."
+              : editingId
+                ? "Hareketi Güncelle"
+                : "Hareketi Kaydet"}
           </button>
         </div>
       </form>
 
+            {/* 1. EXCEL RAPORLAMA KONTROL PANELİ (DIŞARIDA VE EN ÜSTE ALINDI) */}
+      <div
+        className="row g-3 mb-4 align-items-end border-top border-secondary pt-3"
+        style={{ borderColor: "rgba(255,255,255,0.05) !important" }}
+      >
+        <div className="col-md-4">
+          <label className="form-label text-white-50">Log Rapor Türü</label>
+          <select
+            className="form-select mb-0"
+            value={reportType}
+            onChange={(e) => setReportType(e.target.value)}
+          >
+            <option value="cumulative">O Güne Kadar (Kümülatif Log)</option>
+            <option value="daily">Sadece O Gün (Günlük Log)</option>
+          </select>
+        </div>
+        <div className="col-md-4">
+          <label className="form-label text-white-50">Rapor Tarihi</label>
+          <input
+            type="date"
+            className="form-control mb-0"
+            value={reportDate}
+            onChange={(e) => setReportDate(e.target.value)}
+          />
+        </div>
+        <div className="col-md-4">
+          <button
+            type="button"
+            className="btn btn-outline-success w-100 mb-0 d-flex align-items-center justify-content-center gap-2"
+            onClick={handleExcelExport}
+            style={{ height: "38px", fontWeight: 600 }}
+          >
+            📊 Hareket Excelini İndir
+          </button>
+        </div>
+      </div>
+
+      {/* 2. BAŞLIK VE ARAMA PANELİ (EXCEL DIŞINDA KALDI) */}
       <div className="d-flex justify-content-between align-items-end mb-3">
         <h4 className="mb-0 text-white" style={{ fontSize: "0.95rem" }}>
           Son Stok Hareket Logları
         </h4>
         <div className="d-flex gap-2" style={{ width: "450px" }}>
-          <select 
-            className="form-select form-select-sm mb-0" 
+          <select
+            className="form-select form-select-sm mb-0"
             style={{ width: "170px" }}
-            value={sortOption} 
+            value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
           >
             <option value="tarih-azalan">Tarih: En Yeni</option>
@@ -194,6 +319,7 @@ const HareketSayfasi = () => {
             <option value="miktar-azalan">Miktar: En Yüksek</option>
             <option value="miktar-artan">Miktar: En Düşük</option>
           </select>
+          {/* Arama alanı ve diğer kodlar aynen devam eder... */}
           Arama:
           <input
             type="text"
@@ -205,33 +331,47 @@ const HareketSayfasi = () => {
         </div>
       </div>
 
-      <div 
-        className="table-responsive rounded p-1" 
-        style={{ 
-          backgroundColor: "rgba(0,0,0,0.1)", 
+      <div
+        className="table-responsive rounded p-1"
+        style={{
+          backgroundColor: "rgba(0,0,0,0.1)",
           border: "1px solid rgba(255,255,255,0.05)",
           height: "400px",
-          overflowY: "scroll" 
+          overflowY: "scroll",
         }}
       >
         <table className="table table-striped w-100 m-0">
-          <thead style={{ position: "sticky", top: 0, zIndex: 10, backgroundColor: "#1e1e2d" }}>
+          <thead
+            style={{
+              position: "sticky",
+              top: 0,
+              zIndex: 10,
+              backgroundColor: "#1e1e2d",
+            }}
+          >
             <tr>
               <th style={{ width: "80px" }}>ID</th>
               <th>MALZEME</th>
               <th>HAREKET</th>
               <th>TARİH</th>
               <th className="text-end">MİKTAR</th>
-              <th className="text-end" style={{ minWidth: "140px" }}>İŞLEM</th>
+              <th className="text-end" style={{ minWidth: "140px" }}>
+                İŞLEM
+              </th>
             </tr>
           </thead>
           <tbody>
             {sortedHareketler.length > 0 ? (
               sortedHareketler.map((h) => {
-                const isNegative = h.hareketTuru === "SATIS" || h.hareketTuru === "TUKETIM";
+                const isNegative =
+                  h.hareketTuru === "SATIS" || h.hareketTuru === "TUKETIM";
                 const prefix = isNegative ? "-" : "+";
-                const quantityColor = isNegative ? "var(--danger-accent)" : "var(--success-accent)";
-                const tarihFormatli = new Date(h.hareketTarihi).toLocaleString("tr-TR");
+                const quantityColor = isNegative
+                  ? "var(--danger-accent)"
+                  : "var(--success-accent)";
+                const tarihFormatli = new Date(h.hareketTarihi).toLocaleString(
+                  "tr-TR",
+                );
 
                 return (
                   <tr key={h.id}>
@@ -239,22 +379,28 @@ const HareketSayfasi = () => {
                     <td className="fw-semibold text-white">
                       {h.malzeme?.malzemeAdi} ({h.malzeme?.malzemeKodu})
                     </td>
-                    <td><span className="badge-erp">{h.hareketTuru}</span></td>
+                    <td>
+                      <span className="badge-erp">{h.hareketTuru}</span>
+                    </td>
                     <td className="font-mono text-muted">{tarihFormatli}</td>
-                    <td className="text-end font-mono fw-bold" style={{ color: quantityColor }}>
-                      {prefix}{h.miktar}
+                    <td
+                      className="text-end font-mono fw-bold"
+                      style={{ color: quantityColor }}
+                    >
+                      {prefix}
+                      {h.miktar}
                     </td>
                     <td className="text-end text-nowrap d-flex justify-content-end gap-2">
-                      <button 
-                        type="button" 
-                        className="btn btn-sm btn-outline-info py-0 px-2" 
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-info py-0 px-2"
                         onClick={() => handleEditClick(h)}
                       >
                         Düzenle
                       </button>
-                      <button 
-                        type="button" 
-                        className="btn btn-sm btn-outline-danger py-0 px-2" 
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-danger py-0 px-2"
                         onClick={() => handleDelete(h.id)}
                       >
                         Sil
