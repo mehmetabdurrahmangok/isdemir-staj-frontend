@@ -61,12 +61,16 @@ const MalzemeTanim = () => {
     setLoading(true);
     
     try {
+      const userStr = localStorage.getItem("user");
+      const currentUser = userStr ? JSON.parse(userStr) : null;
+      const activeUser = currentUser?.oper || "SYSTEM";
+
       const payload = {
         malzemeKodu: formData.kod,
         malzemeAdi: formData.ad,
         malzemeTurId: formData.turId,
         mensei: formData.mensei,
-        oper: "SYSTEM",
+        oper: activeUser,
       };
 
       if (editingId) {

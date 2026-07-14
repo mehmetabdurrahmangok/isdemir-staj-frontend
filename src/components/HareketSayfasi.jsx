@@ -51,12 +51,16 @@ const HareketSayfasi = () => {
 
     setLoading(true);
     try {
+      const userStr = localStorage.getItem("user");
+      const currentUser = userStr ? JSON.parse(userStr) : null;
+      const activeUser = currentUser?.oper || "SYSTEM";
+
       const payload = {
         malzemeId: formData.malzemeId,
         hareketTuru: formData.islem,
         miktar: formData.miktar,
         hareketTarihi: new Date().toISOString(),
-        oper: "SYSTEM",
+        oper: activeUser,
       };
 
       if (editingId) {

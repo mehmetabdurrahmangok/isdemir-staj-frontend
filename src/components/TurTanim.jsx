@@ -46,16 +46,21 @@ const TurTanim = () => {
 
     setLoading(true);
     try {
+
+      const userStr = localStorage.getItem("user");
+      const currentUser = userStr ? JSON.parse(userStr) : null;
+      const activeUser = currentUser?.oper || "SYSTEM";
+
       if (editingId) {
         await api.put(`/malzemeTurleri/update/${editingId}`, {
           malzemeTurAdi: tur,
-          oper: "SYSTEM",
+          oper: activeUser,
         });
         toast.success("Tür başarıyla güncellendi.");
       } else {
         await api.post("/malzemeTurleri/create", {
           malzemeTurAdi: tur,
-          oper: "SYSTEM",
+          oper: activeUser,
         });
         toast.success("Yeni tür başarıyla kaydedildi.");
       }
