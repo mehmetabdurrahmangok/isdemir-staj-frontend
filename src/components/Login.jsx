@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import api from "../api/axiosInstance";
 const Login = () => {
   const [isRegistering, setIsRegistering] = useState(false); // Kayıt modu açık/kapalı
   const [username, setUsername] = useState("");
@@ -30,34 +30,36 @@ const Login = () => {
     }
   }, []);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    setTimeout(() => {
-      // Tarayıcıdaki sanal kullanıcıları çekiyoruz
-      const usersList = JSON.parse(localStorage.getItem("usersList") || "[]");
+    try {
+      // Backend'deki giriş endpoint'ine istek at
+      const response = await api.post("/users/login", {
+        email: username,
+        password: password,
+      });
 
-      // Kullanıcı adı ve şifre eşleşmesini ara
-      const user = usersList.find(
-        (u) =>
-          u.username.toLowerCase() === username.toLowerCase() &&
-          u.password === password,
-      );
-
-      if (user) {
-        localStorage.setItem("user", JSON.stringify(user)); // Aktif oturumu kaydet
+      if (response.data) {
+        // Gelen kullanıcı bilgilerini ve tokenları tarayıcı hafızasına yaz
+        localStorage.setItem("user", JSON.stringify(response.data));
         navigate("/");
         window.location.reload();
-      } else {
-        setError("Kullanıcı adı veya şifre hatalı!");
-        setLoading(false);
       }
-    }, 800);
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Giriş yapılırken sunucu bağlantı hatası oluştu!");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -69,43 +71,34 @@ const Login = () => {
 
     setLoading(true);
 
-    setTimeout(() => {
-      // Tarayıcıdaki sanal kullanıcıları çekiyoruz
-      const usersList = JSON.parse(localStorage.getItem("usersList") || "[]");
-
-      // Kullanıcı adı daha önce alınmış mı kontrol et
-      const exists = usersList.some(
-        (u) => u.username.toLowerCase() === username.toLowerCase(),
-      );
-
-      if (exists) {
-        setError("Bu kullanıcı adı zaten alınmış!");
-        setLoading(false);
-        return;
-      }
-
-      // Yeni kullanıcı oluştur (id'yi dinamik veriyoruz)
-      const newUser = {
-        id: usersList.length + 1,
-        username: username,
+    try {
+      // Backend'deki kayıt olma endpoint'ine istek at
+      const response = await api.post("/users/register", {
+        email: username,
         password: password,
         adSoyad: adSoyad,
-        rol: "USER", // Kayıt olanlar varsayılan USER rolünde olur
-      };
+        oper: "USER", // Kayıt olanlar varsayılan USER rolünde olur
+      });
 
-      // Listeyi güncelle ve tarayıcıya kaydet
-      usersList.push(newUser);
-      localStorage.setItem("usersList", JSON.stringify(usersList));
-
-      // Kayıt başarılı bildirimi ver ve Giriş moduna geri dön
-      setSuccess("Kayıt başarılı! Şimdi giriş yapabilirsiniz.");
-      setIsRegistering(false);
-
-      // Form alanlarını temizle (şifre hariç)
-      setPassword("");
-      setConfirmPassword("");
+      if (response.data) {
+        setSuccess(
+          "Kayıt işleminiz başarıyla tamamlandı! Giriş yapabilirsiniz.",
+        );
+        setIsRegistering(false); // Giriş ekranına geri yönlendir
+        setPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError(
+          "Kayıt işlemi sırasında bir hata oluştu veya bu e-posta zaten kullanımda!",
+        );
+      }
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const toggleMode = () => {
