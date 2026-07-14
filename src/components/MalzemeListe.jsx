@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../api/axiosInstance";
+import toast from "react-hot-toast";
 
 const MalzemeListe = () => {
   const [data, setData] = useState([]);
@@ -99,7 +100,7 @@ const MalzemeListe = () => {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Excel oluşturma hatası:", error);
-      alert("Excel raporu oluşturulamadı.");
+      toast.error("Excel raporu oluşturulamadı.");
     } finally {
       setModalLoading(false);
     }
@@ -133,7 +134,7 @@ const MalzemeListe = () => {
         setModalData(response.data);
       }
     } catch (error) {
-      alert("Malzeme detayları alınırken bir hata oluştu.");
+      // Hata bildirimi global axiosInstance tarafından yapılıyor
     } finally {
       setModalLoading(false);
     }

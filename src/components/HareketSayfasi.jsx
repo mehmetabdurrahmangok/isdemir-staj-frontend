@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../api/axiosInstance";
+import toast from "react-hot-toast";
 
 const HareketSayfasi = () => {
   const [malzemeler, setMalzemeler] = useState([]);
@@ -53,16 +54,16 @@ const HareketSayfasi = () => {
 
       if (editingId) {
         await api.put(`/malzemeHareketleri/update/${editingId}`, payload);
-        alert("Stok hareketi başarıyla güncellendi.");
+        toast.success("Stok hareketi başarıyla güncellendi.");
       } else {
         await api.post("/malzemeHareketleri/create", payload);
-        alert("Stok hareketi başarıyla işlendi.");
+        toast.success("Stok hareketi başarıyla işlendi.");
       }
       handleCancelEdit();
       fetchData();
     } catch (e) {
       console.error("Kayıt hatası:", e);
-      alert("İşlem başarısız.");
+      // Hata bildirimi global axiosInstance tarafından yapılıyor
     } finally {
       setLoading(false);
     }
@@ -84,7 +85,7 @@ const HareketSayfasi = () => {
 
   const handleDelete = async (id) => {
     if (!id) {
-      alert("Geçersiz hareket ID'si.");
+      toast.error("Geçersiz hareket ID'si.");
       return;
     }
 
@@ -95,13 +96,11 @@ const HareketSayfasi = () => {
     ) {
       try {
         await api.delete(`/malzemeHareketleri/delete/${id}`);
-        alert("Hareket başarıyla silindi.");
+        toast.success("Hareket başarıyla silindi.");
         fetchData();
       } catch (error) {
         console.error("Silme işlemi hatası:", error);
-        alert(
-          "Silme işlemi başarısız oldu. Sunucu ile bağlantınızı kontrol edin.",
-        );
+        // Hata bildirimi global axiosInstance tarafından yapılıyor
       }
     }
   };
@@ -170,7 +169,7 @@ const HareketSayfasi = () => {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Excel oluşturma hatası:", error);
-      alert("Excel raporu oluşturulamadı.");
+      toast.error("Excel raporu oluşturulamadı.");
     }
   };
 
