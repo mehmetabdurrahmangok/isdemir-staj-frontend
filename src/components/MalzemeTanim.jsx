@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../api/axiosInstance";
+import toast from "react-hot-toast";
 
 const MalzemeTanim = () => {
   const [formData, setFormData] = useState({
@@ -49,17 +50,17 @@ const MalzemeTanim = () => {
 
       if (editingId) {
         await api.put(`/malzemeler/update/${editingId}`, payload);
-        alert("Malzeme başarıyla güncellendi.");
+        toast.success("Malzeme başarıyla güncellendi.");
       } else {
         await api.post("/malzemeler/create", payload);
-        alert("Malzeme başarıyla eklendi.");
+        toast.success("Malzeme başarıyla eklendi.");
       }
       
       handleCancelEdit();
       fetchData();
     } catch (error) {
       console.error("Kayıt hatası:", error);
-      alert("İşlem başarısız oldu. Lütfen bağlantıyı kontrol edin.");
+      // Hata bildirimi global axiosInstance tarafından yapılıyor
     } finally {
       setLoading(false);
     }
@@ -85,18 +86,18 @@ const MalzemeTanim = () => {
   // Silme işlemi
   const handleDelete = async (id) => {
     if (!id) {
-      alert("Geçersiz malzeme ID'si.");
+      toast.error("Geçersiz malzeme ID'si.");
       return;
     }
 
     if (window.confirm("Bu malzemeyi silmek istediğinize emin misiniz?")) {
       try {
         await api.delete(`/malzemeler/delete/${id}`);
-        alert("Malzeme başarıyla silindi.");
+        toast.success("Malzeme başarıyla silindi.");
         fetchData();
       } catch (error) {
         console.error("Silme hatası:", error);
-        alert("Silme işlemi başarısız. Bu malzemeye ait stok hareketleri bulunuyor olabilir.");
+        // Hata bildirimi global axiosInstance tarafından yapılıyor
       }
     }
   };

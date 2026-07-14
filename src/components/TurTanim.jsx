@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../api/axiosInstance";
+import toast from "react-hot-toast";
 
 const TurTanim = () => {
   // Form ve Veri Durumları (States)
@@ -39,18 +40,18 @@ const TurTanim = () => {
           malzemeTurAdi: tur,
           oper: "SYSTEM",
         });
-        alert("Tür başarıyla güncellendi.");
+        toast.success("Tür başarıyla güncellendi.");
       } else {
         await api.post("/malzemeTurleri/create", {
           malzemeTurAdi: tur,
           oper: "SYSTEM",
         });
-        alert("Yeni tür başarıyla kaydedildi.");
+        toast.success("Yeni tür başarıyla kaydedildi.");
       }
       handleCancelEdit();
       fetchTurler();
     } catch (error) {
-      alert("İşlem başarısız oldu.");
+      // Hata bildirimi global axiosInstance tarafından yapılıyor
     } finally {
       setLoading(false);
     }
@@ -70,10 +71,10 @@ const TurTanim = () => {
     if (window.confirm("Bu türü silmek istediğinize emin misiniz?")) {
       try {
         await api.delete(`/malzemeTurleri/delete/${id}`);
-        alert("Tür silindi.");
+        toast.success("Tür silindi.");
         fetchTurler();
       } catch (error) {
-        alert("Silme işlemi başarısız. Bu türe bağlı malzemeler olabilir.");
+        // Hata bildirimi global axiosInstance tarafından yapılıyor
       }
     }
   };

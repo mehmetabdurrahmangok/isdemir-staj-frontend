@@ -7,6 +7,8 @@ import {
   Navigate,
 } from "react-router-dom";
 
+import { Toaster } from "react-hot-toast";
+
 import MalzemeListe from "./components/MalzemeListe"; // Ana sayfamız (Genel Rapor)
 import TurTanim from "./components/TurTanim";
 import MalzemeTanim from "./components/MalzemeTanim";
@@ -30,6 +32,29 @@ function App() {
 
   return (
     <Router>
+      <Toaster 
+        position="top-right" 
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            background: '#242424',
+            color: '#fff',
+            borderRadius: '8px',
+            border: '1px solid #444',
+            fontSize: '0.85rem',
+            maxWidth: '400px',
+            wordBreak: 'break-word',
+          },
+          error: {
+            duration: 5000,
+            iconTheme: {
+              primary: '#ff4b4b',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
+
       {/* Üst Menü (Yalnızca kullanıcı giriş yapmışsa görünür) */}
       {currentUser && (
         <nav className="navbar navbar-expand-lg navbar-light">
