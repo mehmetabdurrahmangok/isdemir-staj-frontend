@@ -33,6 +33,17 @@ const TurTanim = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!tur.trim()) return;
+
+    // FRONTEND VERİ DOĞRULAMA (DUPLICATE CHECK)
+    const isDuplicateTur = turler.some(
+      (t) => t.malzemeTurAdi?.toLowerCase() === tur.trim().toLowerCase() && t.id !== editingId
+    );
+
+    if (isDuplicateTur) {
+      toast.error("Hata: Bu tür adı sistemde zaten kullanılıyor! Lütfen farklı bir ad giriniz.");
+      return;
+    }
+
     setLoading(true);
     try {
       if (editingId) {

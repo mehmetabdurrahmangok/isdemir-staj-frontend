@@ -42,6 +42,13 @@ const HareketSayfasi = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Negatif veya sıfır değer girilmesini engelle
+    if (Number(formData.miktar) <= 0) {
+      toast.error("Hata: Miktar 0 veya negatif olamaz! Lütfen geçerli bir miktar giriniz.");
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = {
@@ -255,6 +262,8 @@ const HareketSayfasi = () => {
             <input
               type="number"
               className="form-control"
+              min="0.01"
+              step="any"
               value={formData.miktar}
               onChange={(e) =>
                 setFormData({ ...formData, miktar: e.target.value })
