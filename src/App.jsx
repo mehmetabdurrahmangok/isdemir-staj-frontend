@@ -17,10 +17,10 @@ import "./App.css";
 
 function App() {
   // Tarayıcı hafızasından giriş yapmış olan kullanıcı bilgilerini çek
-  /*const userJson = localStorage.getItem("user");
-  const currentUser = userJson ? JSON.parse(userJson) : null;*/
+  const userJson = localStorage.getItem("user");
+  const currentUser = userJson ? JSON.parse(userJson) : null;
 
-  const currentUser = { adSoyad: "Ziyaretçi", rol: "ADMIN" };
+  
 
   // Çıkış yapma fonksiyonu
   const handleLogout = () => {
