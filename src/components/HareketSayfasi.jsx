@@ -42,14 +42,25 @@ const HareketSayfasi = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Negatif veya sıfır değer girilmesini engelle
+    if (Number(formData.miktar) <= 0) {
+      toast.error("Hata: Miktar 0 veya negatif olamaz! Lütfen geçerli bir miktar giriniz.");
+      return;
+    }
+
     setLoading(true);
     try {
+      const userStr = localStorage.getItem("user");
+      const currentUser = userStr ? JSON.parse(userStr) : null;
+      const activeUser = currentUser?.oper || "SYSTEM";
+
       const payload = {
         malzemeId: formData.malzemeId,
         hareketTuru: formData.islem,
         miktar: formData.miktar,
         hareketTarihi: new Date().toISOString(),
-        oper: "SYSTEM",
+        oper: activeUser,
       };
 
       if (editingId) {
@@ -255,6 +266,8 @@ const HareketSayfasi = () => {
             <input
               type="number"
               className="form-control"
+              min="0.01"
+              step="any"
               value={formData.miktar}
               onChange={(e) =>
                 setFormData({ ...formData, miktar: e.target.value })

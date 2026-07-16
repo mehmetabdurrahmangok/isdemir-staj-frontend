@@ -33,18 +33,34 @@ const TurTanim = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!tur.trim()) return;
+
+    // FRONTEND VERİ DOĞRULAMA (DUPLICATE CHECK)
+    const isDuplicateTur = turler.some(
+      (t) => t.malzemeTurAdi?.toLowerCase() === tur.trim().toLowerCase() && t.id !== editingId
+    );
+
+    if (isDuplicateTur) {
+      toast.error("Hata: Bu tür adı sistemde zaten kullanılıyor! Lütfen farklı bir ad giriniz.");
+      return;
+    }
+
     setLoading(true);
     try {
+
+      const userStr = localStorage.getItem("user");
+      const currentUser = userStr ? JSON.parse(userStr) : null;
+      const activeUser = currentUser?.oper || "SYSTEM";
+
       if (editingId) {
         await api.put(`/malzemeTurleri/update/${editingId}`, {
           malzemeTurAdi: tur,
-          oper: "SYSTEM",
+          oper: activeUser,
         });
         toast.success("Tür başarıyla güncellendi.");
       } else {
         await api.post("/malzemeTurleri/create", {
           malzemeTurAdi: tur,
-          oper: "SYSTEM",
+          oper: activeUser,
         });
         toast.success("Yeni tür başarıyla kaydedildi.");
       }

@@ -37,15 +37,40 @@ const MalzemeTanim = () => {
   // Form gönderme (Ekleme / Güncelleme)
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // FRONTEND VERİ DOĞRULAMA (DUPLICATE CHECK)
+    // Aynı koda veya isme sahip başka bir malzeme var mı kontrolü (Büyük/küçük harf duyarsız)
+    //const isDuplicateCode = malzemeler.some(
+      //(m) => m.malzemeKodu?.toLowerCase() === formData.kod.trim().toLowerCase() && m.id !== editingId
+    //);
+
+    const isDuplicateName = malzemeler.some(
+      (m) => m.malzemeAdi?.toLowerCase() === formData.ad.trim().toLowerCase() && m.id !== editingId
+    );
+
+    //if (isDuplicateCode) {
+      //toast.error("Hata: Bu malzeme kodu sistemde zaten kullanılıyor! Lütfen farklı bir kod giriniz.");
+      //return;
+    //}
+
+    if (isDuplicateName) {
+      toast.error("Hata: Bu malzeme adı sistemde zaten kullanılıyor! Lütfen farklı bir isim giriniz.");
+      return;
+    }
+
     setLoading(true);
     
     try {
+      const userStr = localStorage.getItem("user");
+      const currentUser = userStr ? JSON.parse(userStr) : null;
+      const activeUser = currentUser?.oper || "SYSTEM";
+
       const payload = {
         malzemeKodu: formData.kod,
         malzemeAdi: formData.ad,
         malzemeTurId: formData.turId,
         mensei: formData.mensei,
-        oper: "SYSTEM",
+        oper: activeUser,
       };
 
       if (editingId) {
@@ -69,7 +94,7 @@ const MalzemeTanim = () => {
   // Düzenleme moduna geçiş
   const handleEditClick = (m) => {
     setFormData({
-      kod: m.malzemeKodu || "",
+      //kod: m.malzemeKodu || "",
       ad: m.malzemeAdi || "",
       mensei: m.mensei || "YERLI",
       turId: m.malzemeTurId || "",
@@ -128,16 +153,6 @@ const MalzemeTanim = () => {
         </h4>
         
         <div className="row g-2 mb-3">
-          <div className="col-md-3">
-            <label className="form-label">KOD</label>
-            <input
-              type="text"
-              className="form-control"
-              value={formData.kod}
-              onChange={(e) => setFormData({ ...formData, kod: e.target.value })}
-              required
-            />
-          </div>
           <div className="col-md-3">
             <label className="form-label">MALZEME ADI</label>
             <input
