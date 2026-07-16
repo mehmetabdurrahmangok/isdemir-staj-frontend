@@ -47,7 +47,7 @@ function AppContent() {
       <nav className="navbar navbar-expand-lg navbar-light">
         <div className="container-fluid justify-content-between px-4">
           <Link className="navbar-brand fw-bold" to="/">
-            ■ NEURAL.STOK
+            ■ İSDEMİR.STOK
           </Link>
 
           <div className="d-flex align-items-center gap-3">
