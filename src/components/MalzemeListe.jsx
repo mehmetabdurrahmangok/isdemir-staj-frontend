@@ -388,6 +388,8 @@ const MalzemeListe = () => {
               <th style={{ color: "#a1a1aa" }}>MALZEME TANIMI / ADI</th>
               <th style={{ width: "130px", color: "#a1a1aa" }}>TÜRÜ</th>
               <th style={{ width: "100px", color: "#a1a1aa" }}>MENŞEİ</th>
+              <th style={{ width: "100px", color: "#a1a1aa" }}>OPER SİCİL</th>
+              <th style={{ width: "120px", color: "#a1a1aa" }}>İŞLEM TARİHİ</th>
               <th
                 className="text-end"
                 style={{ width: "140px", color: "#a1a1aa" }}
@@ -438,6 +440,10 @@ const MalzemeListe = () => {
                       </span>
                     </td>
                     <td className="text-secondary">{item.mensei || "-"}</td>
+                    <td style={{ color: "#a1a1aa" }}>{item.oper || "-"}</td>
+                    <td style={{ color: "#a1a1aa", fontSize: "0.85rem" }}>
+                      {item.updatedAt ? new Date(item.updatedAt).toLocaleString("tr-TR") : "-"}
+                    </td>
                     <td className="text-end">
                       <div
                         className="font-mono fw-bold mb-1"
@@ -570,6 +576,8 @@ const MalzemeListe = () => {
                     <th style={{ color: "#a1a1aa" }}>HAREKET ID</th>
                     <th style={{ color: "#a1a1aa" }}>TARİH</th>
                     <th style={{ color: "#a1a1aa" }}>İŞLEM TÜRÜ</th>
+                    <th style={{ color: "#a1a1aa" }}>OPER SİCİL</th>
+                    <th style={{ color: "#a1a1aa" }}>İŞLEM TARİHİ</th>
                     <th className="text-end" style={{ color: "#a1a1aa" }}>
                       MİKTAR
                     </th>
@@ -597,6 +605,10 @@ const MalzemeListe = () => {
                             <span className="badge bg-secondary text-light">
                               {h.hareketTuru}
                             </span>
+                          </td>
+                          <td style={{ color: "#a1a1aa" }}>{h.oper || "-"}</td>
+                          <td style={{ color: "#a1a1aa", fontSize: "0.85rem" }}>
+                            {h.updatedAt ? new Date(h.updatedAt).toLocaleString("tr-TR") : "-"}
                           </td>
                           <td
                             className="text-end font-mono fw-bold"

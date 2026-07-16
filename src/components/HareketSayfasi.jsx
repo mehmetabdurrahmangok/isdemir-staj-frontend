@@ -407,6 +407,8 @@ const HareketSayfasi = () => {
               <th>MALZEME</th>
               <th>HAREKET</th>
               <th>TARİH</th>
+              <th>OPER SİCİL</th>
+              <th>İŞLEM TARİHİ</th>
               <th className="text-end">MİKTAR</th>
               <th className="text-end" style={{ minWidth: "140px" }}>
                 İŞLEM
@@ -436,6 +438,10 @@ const HareketSayfasi = () => {
                       <span className="badge-erp">{h.hareketTuru}</span>
                     </td>
                     <td className="font-mono text-muted">{tarihFormatli}</td>
+                    <td style={{ color: "var(--text-secondary)" }}>{h.oper || "-"}</td>
+                    <td style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>
+                      {h.updatedAt ? new Date(h.updatedAt).toLocaleString("tr-TR") : "-"}
+                    </td>
                     <td
                       className="text-end font-mono fw-bold"
                       style={{ color: quantityColor }}

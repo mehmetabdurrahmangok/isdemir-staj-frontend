@@ -192,8 +192,11 @@ const TurTanim = () => {
                         className="p-3 d-flex justify-content-between align-items-center cursor-pointer" 
                         onClick={() => setExpandedIdx(expandedIdx === t.id ? null : t.id)}
                       >
-                        <div className="d-flex align-items-center gap-2">
+                        <div className="d-flex align-items-center gap-3">
                           <span className="badge-erp">{t.malzemeTurAdi ? t.malzemeTurAdi.toUpperCase() : "BİLİNMİYOR"}</span>
+                          <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                            <strong>İşlem:</strong> {t.oper || "-"} | <strong>Tarih:</strong> {t.updatedAt ? new Date(t.updatedAt).toLocaleString("tr-TR") : "-"}
+                          </span>
                         </div>
                         <div className="d-flex align-items-center gap-2">
                           <span className="text-muted me-2" style={{ fontSize: "0.8rem" }}>

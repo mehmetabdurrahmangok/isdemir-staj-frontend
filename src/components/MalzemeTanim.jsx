@@ -16,6 +16,37 @@ const MalzemeTanim = () => {
   const [malzemeler, setMalzemeler] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Malzeme Detay Sorgulama State'leri
+  const [detayKodu, setDetayKodu] = useState("");
+  const [detayVeri, setDetayVeri] = useState(null);
+  const [detayLoading, setDetayLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Malzeme Detay Getirme Fonksiyonu
+  const handleDetayGetir = async () => {
+    if (!detayKodu.trim()) {
+      toast.error("Lütfen bir malzeme kodu giriniz.");
+      return;
+    }
+    setDetayLoading(true);
+    setDetayVeri(null);
+    try {
+      // Backend'deki doğru adres /api/malzemeler/detay/ şeklindedir
+      const res = await api.get(`/malzemeler/detay/${detayKodu.trim()}`);
+      if (res.data) {
+        setDetayVeri(res.data);
+        setIsModalOpen(true);
+        toast.success("Detaylar başarıyla getirildi.");
+      } else {
+        toast.error("Bu koda ait detay bulunamadı.");
+      }
+    } catch (err) {
+      console.error("Detay getirme hatası:", err);
+    } finally {
+      setDetayLoading(false);
+    }
+  };
 
   // Sayfa yüklendiğinde verileri çek
   useEffect(() => {
@@ -204,6 +235,30 @@ const MalzemeTanim = () => {
         </div>
       </form>
 
+      {/* Malzeme Detay Sorgulama Alanı */}
+      <div className="mb-4 p-3 rounded" style={{ backgroundColor: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.04)" }}>
+        <h5 className="mb-3 text-dark" style={{ fontSize: "0.9rem" }}>🔍 Malzeme Detay Sorgulama</h5>
+        <div className="d-flex gap-2 align-items-center mb-2" style={{ maxWidth: "400px" }}>
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            placeholder="Malzeme kodu giriniz (Örn: MLZ001)..."
+            value={detayKodu}
+            onChange={(e) => setDetayKodu(e.target.value)}
+          />
+          <button 
+            type="button" 
+            className="btn btn-sm btn-outline-primary text-nowrap" 
+            onClick={handleDetayGetir}
+            disabled={detayLoading}
+          >
+            {detayLoading ? "Sorgulanıyor..." : "Detay Getir"}
+          </button>
+        </div>
+        
+
+      </div>
+
       {/* Arama Kutusu ve Başlık */}
       <div className="d-flex justify-content-between align-items-end mb-3">
         <h4 className="mb-0 text-dark" style={{ fontSize: "0.95rem" }}>
@@ -239,6 +294,8 @@ const MalzemeTanim = () => {
               <th>ADI</th>
               <th>TÜRÜ</th>
               <th>MENŞEİ</th>
+              <th>OPER SİCİL</th>
+              <th>İŞLEM TARİHİ</th>
               <th className="text-end" style={{ minWidth: "140px" }}>İŞLEM</th>
             </tr>
           </thead>
@@ -253,6 +310,10 @@ const MalzemeTanim = () => {
                     <span className="badge-erp">{m.malzemeTurAdi || "-"}</span>
                   </td>
                   <td style={{ color: "var(--text-secondary)" }}>{m.mensei}</td>
+                  <td style={{ color: "var(--text-secondary)" }}>{m.oper || "-"}</td>
+                  <td style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>
+                    {m.updatedAt ? new Date(m.updatedAt).toLocaleString("tr-TR") : "-"}
+                  </td>
                   <td className="text-end text-nowrap d-flex justify-content-end gap-2">
                     <button 
                       type="button"
@@ -283,6 +344,110 @@ const MalzemeTanim = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Detay Modal'ı */}
+      {isModalOpen && detayVeri && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.6)", zIndex: 9999,
+          display: "flex", alignItems: "center", justifyContent: "center"
+        }}>
+          <div style={{
+            backgroundColor: "#fff", padding: "24px", borderRadius: "12px",
+            width: "90%", maxWidth: "450px", boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
+          }}>
+            <div className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+              <h5 className="mb-0 text-primary fw-bold">
+                📦 Malzeme Detayları
+              </h5>
+              <button 
+                type="button"
+                className="btn-close" 
+                onClick={() => setIsModalOpen(false)}
+                aria-label="Kapat"
+              ></button>
+            </div>
+            
+            <div className="text-dark">
+              <div className="d-flex justify-content-between mb-2">
+                <span className="text-muted fw-semibold">Malzeme Kodu:</span>
+                <span className="fw-bold text-primary">{detayVeri.malzemeKodu || "-"}</span>
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <span className="text-muted fw-semibold">Malzeme Adı:</span>
+                <span className="fw-bold">{detayVeri.malzemeAdi || "-"}</span>
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <span className="text-muted fw-semibold">Türü:</span>
+                <span className="badge bg-secondary text-white">{detayVeri.malzemeTurAdi || "-"}</span>
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <span className="text-muted fw-semibold">Menşei:</span>
+                <span className="fw-bold">{detayVeri.mensei || "-"}</span>
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <span className="text-muted fw-semibold">Mevcut Stok:</span>
+                <span className="fw-bold text-success fs-5">{detayVeri.mevcutMiktar || 0}</span>
+              </div>
+
+              {/* Hareketler Listesi */}
+              {detayVeri.hareketler && detayVeri.hareketler.length > 0 ? (
+                <div className="mt-3">
+                  <h6 className="fw-bold mb-2 text-primary" style={{ fontSize: "0.9rem" }}>Geçmiş Hareketler:</h6>
+                  <div style={{ maxHeight: "150px", overflowY: "auto", border: "1px solid #dee2e6", borderRadius: "6px" }}>
+                    <table className="table table-sm table-striped table-hover mb-0" style={{ fontSize: "0.85rem" }}>
+                      <thead className="table-light" style={{ position: "sticky", top: 0, zIndex: 1 }}>
+                        <tr>
+                          <th>Tarih</th>
+                          <th>Tür</th>
+                          <th className="text-end">Miktar</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {detayVeri.hareketler.map((h, i) => (
+                          <tr key={i}>
+                            <td>{new Date(h.hareketTarihi).toLocaleDateString("tr-TR")}</td>
+                            <td>
+                              <span className={`badge ${h.hareketTuru === 'GELEN' || h.hareketTuru === 'URETIM' ? 'bg-success' : 'bg-danger'}`}>
+                                {h.hareketTuru}
+                              </span>
+                            </td>
+                            <td className="text-end fw-bold">{h.miktar}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <div className="alert alert-secondary py-2 mt-3 mb-0 text-center" style={{ fontSize: "0.85rem" }}>
+                  Bu malzemeye ait henüz bir hareket bulunmuyor.
+                </div>
+              )}
+              
+              <hr className="my-3" />
+              <div className="small text-muted bg-light p-2 rounded">
+                <div className="mb-1">
+                  <strong>İşlem Tarihi:</strong> {detayVeri.updatedAt ? new Date(detayVeri.updatedAt).toLocaleString("tr-TR") : "-"}
+                </div>
+                <div>
+                  <strong>Operatör (Kullanıcı):</strong> {detayVeri.oper || "-"}
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-end mt-4">
+              <button 
+                type="button" 
+                className="btn btn-secondary px-4" 
+                onClick={() => setIsModalOpen(false)}
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
