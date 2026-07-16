@@ -183,8 +183,7 @@ const PoiRaporSayfasi = () => {
               }}
             >
               <tr>
-                <th style={{ color: "#a1a1aa", textAlign: "left" }}>TARİH</th>{" "}
-                {/* Başlık eklendi */}
+                <th style={{ color: "#a1a1aa", textAlign: "left" }}>TARİH</th>
                 {reportData.columns.map((col, idx) => (
                   <th
                     key={idx}
@@ -241,7 +240,6 @@ const PoiRaporSayfasi = () => {
                   style={{ borderTop: "2px solid rgba(255,255,255,0.1)" }}
                 >
                   <td className="text-dark">GENEL TOPLAM</td>
-                  {/* slice(1) kaldırıldı */}
                   {reportData.columns.map((col, cIdx) => (
                     <td key={cIdx} className="text-end font-mono text-success">
                       {reportData.rowTotal[col.headerName] !== undefined

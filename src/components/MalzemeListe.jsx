@@ -346,7 +346,7 @@ const MalzemeListe = () => {
               style={{ cursor: "pointer" }}
             />
             <label className="form-check-label text-dark-50 ms-2" htmlFor="filterCategoryCheck" style={{ fontSize: "0.82rem", cursor: "pointer" }}>
-              Seçili Kategoriyi Filtrele ({selectedTur ? selectedTur.toUpperCase() : "Tümü"})
+              Seçili Kategoriye Göre Excel Raporunu Filtrele ({selectedTur ? selectedTur.toUpperCase() : "Tümü"})
             </label>
           </div>
         </div>
