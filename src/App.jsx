@@ -92,9 +92,7 @@ function AppContent() {
             🔄 Stok Hareketleri
           </Link>
 
-          <Link className="sidebar-link" to="/hareket-giris">
-            🔄 Stok Hareketleri
-          </Link>
+
 
           {/* YENİ MENÜ LİNKİ: */}
           <Link className="sidebar-link" to="/poi-rapor">
