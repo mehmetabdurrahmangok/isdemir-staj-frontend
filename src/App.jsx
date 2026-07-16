@@ -16,6 +16,7 @@ import MalzemeTanim from "./components/MalzemeTanim";
 import HareketSayfasi from "./components/HareketSayfasi";
 import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PoiRaporSayfasi from "./components/PoiRaporSayfasi";
 
 import "./App.css";
 
@@ -90,6 +91,15 @@ function AppContent() {
           <Link className="sidebar-link" to="/hareket-giris">
             🔄 Stok Hareketleri
           </Link>
+
+          <Link className="sidebar-link" to="/hareket-giris">
+            🔄 Stok Hareketleri
+          </Link>
+
+          {/* YENİ MENÜ LİNKİ: */}
+          <Link className="sidebar-link" to="/poi-rapor">
+            📊 POI Rapor Sayfası
+          </Link>
         </aside>
 
         {/* SAĞ TARAF */}
@@ -127,6 +137,14 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <HareketSayfasi />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/poi-rapor"
+              element={
+                <ProtectedRoute>
+                  <PoiRaporSayfasi />
                 </ProtectedRoute>
               }
             />

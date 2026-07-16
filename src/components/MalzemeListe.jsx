@@ -12,6 +12,8 @@ const MalzemeListe = () => {
   // Modal (Detay Ekranı) State'leri
   const [modalData, setModalData] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
+  // Arama ve modal state'lerinin olduğu kısma (yaklaşık 14. satır) ekleyin:
+  const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
   
   // PDF / Excel Raporlama Parametreleri
   const [reportDate, setReportDate] = useState(new Date().toISOString().split("T")[0]);
@@ -105,6 +107,7 @@ const MalzemeListe = () => {
       setModalLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchData();
