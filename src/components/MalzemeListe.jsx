@@ -173,7 +173,7 @@ const MalzemeListe = () => {
       >
         <div className="text-center">
           <div className="spinner-border text-light mb-3" role="status"></div>
-          <h4 className="text-white">Veritabanından bilgiler alınıyor...</h4>
+          <h4 className="text-black">Lütfen bekleyin...</h4>
         </div>
       </div>
     );
@@ -187,11 +187,15 @@ const MalzemeListe = () => {
         style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
       >
         <h2
-          className="m-0 border-0 p-0 text-white"
-          style={{ fontSize: "1.25rem", fontWeight: 700 }}
-        >
-          ■ ENVANTER GENEL RAPORU
-        </h2>
+  className="m-0 border-0 p-0"
+  style={{
+    fontSize: "1.25rem",
+    fontWeight: 700,
+    color: "#0f172a",
+  }}
+>
+  ■ ENVANTER GENEL RAPORU
+</h2>
         <div className="d-flex align-items-center">
           <span
             className={`pulse-led ${isOffline ? "led-orange" : "led-green"}`}
@@ -210,13 +214,13 @@ const MalzemeListe = () => {
       </div>
 
       {/* Metrik Kartları */}
-      <div className="row g-3 mb-5">
+      <div className="row g-3 mb-2">
         <div className="col-md-6">
           <div className="metric-card">
             <span
               style={{
                 fontSize: "0.72rem",
-                color: "#a1a1aa",
+                color: "#606060",
                 fontWeight: 500,
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
@@ -224,14 +228,17 @@ const MalzemeListe = () => {
             >
               Toplam Kayıtlı Malzeme
             </span>
-            <h3
-              className="m-0 mt-2 font-mono text-white fw-bold"
-              style={{ fontSize: "1.8rem" }}
-            >
-              {totalFlows}
-            </h3>
+           <h3
+  className="m-0 mt-2 font-mono fw-bold"
+  style={{
+    fontSize: "1.8rem",
+    color: "#707070"
+  }}
+>
+  {totalFlows}
+</h3>
             <span
-              style={{ fontSize: "0.68rem", color: "#10b981", fontWeight: 600 }}
+              style={{ fontSize: "0.68rem", color: "#606060", fontWeight: 600 }}
             >
               Veritabanı kayıt sayısı
             </span>
@@ -243,7 +250,7 @@ const MalzemeListe = () => {
             <span
               style={{
                 fontSize: "0.72rem",
-                color: "#a1a1aa",
+                color: "#707070",
                 fontWeight: 500,
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
@@ -252,16 +259,16 @@ const MalzemeListe = () => {
               Aktif Kategori Çeşidi
             </span>
             <h3
-              className="m-0 mt-2 font-mono text-white fw-bold"
-              style={{ fontSize: "1.8rem" }}
-            >
-              {activeKinds}{" "}
-              <span style={{ fontSize: "0.9rem", color: "#a1a1aa" }}>
-                Kategori
-              </span>
-            </h3>
+  className="m-0 mt-2 font-mono fw-bold"
+  style={{
+    fontSize: "1.8rem",
+    color: "#606060"
+  }}
+>
+  {activeKinds}
+</h3>
             <span
-              style={{ fontSize: "0.68rem", color: "#a1a1aa", fontWeight: 600 }}
+              style={{ fontSize: "0.68rem", color: "#606060", fontWeight: 600 }}
             >
               Sistemde tanımlı türler
             </span>
@@ -271,8 +278,8 @@ const MalzemeListe = () => {
 
       {/* Arama ve Filtreleme Bölümü */}
       <div className="row g-3 mb-4 align-items-end">
-        <div className="col-md-7">
-          <label className="form-label text-white-50">Akıllı Arama</label>
+        <div className="col-md-6">
+          <label className="form-label text-dark-50">Akıllı Arama</label>
           <input
             type="text"
             className="form-control mb-0"
@@ -281,8 +288,8 @@ const MalzemeListe = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="col-md-5">
-          <label className="form-label text-white-50">Kategori Filtresi</label>
+        <div className="col-md-6">
+          <label className="form-label text-dark-50">Kategori Filtresi</label>
           <select
             className="select form-select mb-0"
             value={selectedTur}
@@ -306,7 +313,7 @@ const MalzemeListe = () => {
         style={{ borderColor: "rgba(255,255,255,0.05) !important" }}
       >
         <div className="col-md-3">
-          <label className="form-label text-white-50">Rapor Türü</label>
+          <label className="form-label text-dark-50">Rapor Türü</label>
           <select
             className="form-select mb-0"
             value={reportType}
@@ -317,7 +324,7 @@ const MalzemeListe = () => {
           </select>
         </div>
         <div className="col-md-3">
-          <label className="form-label text-white-50">Rapor Tarihi</label>
+          <label className="form-label text-dark-50">Rapor Tarihi</label>
           <input
             type="date"
             className="form-control mb-0"
@@ -335,7 +342,7 @@ const MalzemeListe = () => {
               onChange={(e) => setFilterCategoryInReport(e.target.checked)}
               style={{ cursor: "pointer" }}
             />
-            <label className="form-check-label text-white-50 ms-2" htmlFor="filterCategoryCheck" style={{ fontSize: "0.82rem", cursor: "pointer" }}>
+            <label className="form-check-label text-dark-50 ms-2" htmlFor="filterCategoryCheck" style={{ fontSize: "0.82rem", cursor: "pointer" }}>
               Seçili Kategoriyi Filtrele ({selectedTur ? selectedTur.toUpperCase() : "Tümü"})
             </label>
           </div>
@@ -363,7 +370,7 @@ const MalzemeListe = () => {
           overflowY: "scroll",
         }}
       >
-        <table className="table table-dark table-striped table-hover w-100 m-0">
+        <table className="table table-hover w-100 m-0">
           <thead
             style={{
               position: "sticky",
@@ -405,16 +412,25 @@ const MalzemeListe = () => {
                 return (
                   <tr key={item.id} className="align-middle">
                     <td className="font-mono text-secondary">#{item.id}</td>
-                    <td className="font-mono fw-bold text-white">
+                    <td className="font-mono fw-bold text-dark">
                       {item.malzemeKodu || "-"}
                     </td>
                     <td>
-                      <div className="fw-semibold text-white">
+                      <div className="fw-semibold text-dark">
                         {item.malzemeAdi || "İsimsiz Malzeme"}
                       </div>
                     </td>
                     <td>
-                      <span className="badge bg-secondary text-light">
+                      <span
+  style={{
+    background: "#eff6ff",
+    color: "#2563eb",
+    padding: "6px 12px",
+    borderRadius: "999px",
+    fontSize: "12px",
+    fontWeight: 600
+  }}
+>
                         {item.malzemeTurAdi || "-"}
                       </span>
                     </td>
@@ -494,15 +510,15 @@ const MalzemeListe = () => {
             className="erp-container p-4 animate-fade-in"
             style={{
               width: "90%",
-              maxWidth: "800px",
-              maxHeight: "90vh",
+              
+              
               overflowY: "auto",
               border: "1px solid rgba(255,255,255,0.1)",
             }}
           >
             <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
               <div>
-                <h3 className="m-0 text-white" style={{ fontSize: "1.2rem" }}>
+                <h3 className="m-0 text-dark" style={{ fontSize: "1.2rem" }}>
                   {modalData.malzemeAdi} Detay Raporu
                 </h3>
                 <span
@@ -541,7 +557,7 @@ const MalzemeListe = () => {
               </h4>
             </div>
 
-            <h5 className="text-white mb-3" style={{ fontSize: "1rem" }}>
+            <h5 className="text-dark mb-3" style={{ fontSize: "1rem" }}>
               Hareket Geçmişi
             </h5>
             <div className="table-responsive">
@@ -571,7 +587,7 @@ const MalzemeListe = () => {
                       return (
                         <tr key={h.id}>
                           <td className="font-mono text-secondary">#{h.id}</td>
-                          <td className="font-mono text-white">
+                          <td className="font-mono text-dark">
                             {tarihFormatli}
                           </td>
                           <td>

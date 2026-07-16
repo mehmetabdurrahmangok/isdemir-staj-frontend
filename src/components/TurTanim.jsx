@@ -102,13 +102,13 @@ const TurTanim = () => {
   );
 
   return (
-    <div className="erp-container" style={{ maxWidth: "950px" }}>
+    <div className="erp-container" style={{ Width: "950px" }}>
       <h2 className="erp-title">Malzeme Tür Tanımlama</h2>
 
       <div className="row g-4">
         {/* SOL KOLON: Form Alanı */}
         <div className="col-md-5 border-end border-secondary pe-4" style={{ borderColor: "rgba(255,255,255,0.08) !important" }}>
-          <h4 className="mb-4 text-white" style={{ fontSize: "0.95rem" }}>
+          <h4 className="mb-4 text-dark" style={{ fontSize: "0.95rem" }}>
             {editingId ? "[-] Tür Tanımını Güncelle" : "[+] Yeni Tür Tanımı"}
           </h4>
           <form onSubmit={handleSubmit}>
@@ -138,7 +138,7 @@ const TurTanim = () => {
 
         {/* SAĞ KOLON: Arama ve Liste Alanı */}
         <div className="col-md-7 ps-4">
-          <h4 className="mb-3 text-white" style={{ fontSize: "0.95rem" }}>
+          <h4 className="mb-3 text-dark" style={{ fontSize: "0.95rem" }}>
             Türler ve Akış Detayları
           </h4>
 
@@ -191,11 +191,11 @@ const TurTanim = () => {
                       {isExpanded && (
                         <div className="p-3 border-top border-secondary animate-fade-in" style={{ backgroundColor: "rgba(0,0,0,0.2)", borderColor: "rgba(255,255,255,0.05) !important" }}>
                           <div className="mb-2">
-                            <strong className="text-white d-block mb-1" style={{ fontSize: "0.75rem" }}>İSDEMİR'DE NELER ÜRETİLİR / NE İŞE YARAR?</strong>
+                            <strong className="text-dark d-block mb-1" style={{ fontSize: "0.75rem" }}>İSDEMİR'DE NELER ÜRETİLİR / NE İŞE YARAR?</strong>
                             <p className="m-0" style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>{details.nelerYapilir}</p>
                           </div>
                           <div>
-                            <strong className="text-white d-block mb-1" style={{ fontSize: "0.75rem" }}>NEREDEN VE NASIL TEMİN EDİLİR?</strong>
+                            <strong className="text-dark d-block mb-1" style={{ fontSize: "0.75rem" }}>NEREDEN VE NASIL TEMİN EDİLİR?</strong>
                             <p className="m-0" style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>{details.neredenBulunur}</p>
                           </div>
                         </div>

@@ -115,7 +115,7 @@ const MalzemeTanim = () => {
     return ad.includes(aranan) || kod.includes(aranan) || tur.includes(aranan) || mensei.includes(aranan);
   });
   return (
-    <div className="erp-container" style={{ maxWidth: "980px" }}>
+    <div className="erp-container">
       <h2 className="erp-title">Malzeme Tanımlama Ekranı</h2>
 
       <form
@@ -123,7 +123,7 @@ const MalzemeTanim = () => {
         className="mb-5 p-4 rounded"
         style={{ backgroundColor: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.04)" }}
       >
-        <h4 className="mb-4 text-white" style={{ fontSize: "0.9rem" }}>
+        <h4 className="mb-4 text-dark" style={{ fontSize: "0.9rem" }}>
           {editingId ? "[-] Malzeme Bilgilerini Güncelle" : "[+] Yeni Malzeme Tanımı"}
         </h4>
         
@@ -191,7 +191,7 @@ const MalzemeTanim = () => {
 
       {/* Arama Kutusu ve Başlık */}
       <div className="d-flex justify-content-between align-items-end mb-3">
-        <h4 className="mb-0 text-white" style={{ fontSize: "0.95rem" }}>
+        <h4 className="mb-0 text-dark" style={{ fontSize: "0.95rem" }}>
           Tanımlı Malzemeler Listesi
         </h4>
         <div style={{ width: "300px" }}>
@@ -232,8 +232,8 @@ const MalzemeTanim = () => {
               filteredMalzemeler.map((m) => (
                 <tr key={m.id}>
                   <td className="font-mono text-muted">#{m.id}</td>
-                  <td className="font-mono fw-bold text-white">{m.malzemeKodu}</td>
-                  <td className="fw-semibold text-white">{m.malzemeAdi}</td>
+                  <td className="font-mono fw-bold text-dark">{m.malzemeKodu}</td>
+                  <td className="fw-semibold text-dark">{m.malzemeAdi}</td>
                   <td>
                     <span className="badge-erp">{m.malzemeTurAdi || "-"}</span>
                   </td>

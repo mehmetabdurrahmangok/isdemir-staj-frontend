@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
+
 const Login = () => {
   const [isRegistering, setIsRegistering] = useState(false); // Kayıt modu açık/kapalı
   const [username, setUsername] = useState("");
@@ -30,7 +31,7 @@ const Login = () => {
     }
   }, []);
 
-  const handleLogin = async (e) => {
+ const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -57,7 +58,7 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }; 
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -109,7 +110,7 @@ const Login = () => {
     setPassword("");
     setConfirmPassword("");
     setAdSoyad("");
-  };
+  };  
 
   return (
     <div
@@ -120,13 +121,13 @@ const Login = () => {
       }}
     >
       <div
-        className="card p-5 shadow-lg border-secondary text-white"
+        className="card p-5 shadow-lg border-secondary text-dark"
         style={{
           width: "100%",
-          maxWidth: "400px",
-          backgroundColor: "rgba(30, 30, 45, 0.65)",
+          maxWidth: "500px",
+          backgroundColor: "rgb(255, 255, 255)",
           backdropFilter: "blur(15px)",
-          border: "1px solid rgba(255, 255, 255, 0.05)",
+          border: "1px solid rgb(255, 255, 255)",
           borderRadius: "8px",
           transition: "all 0.3s ease",
         }}
@@ -183,7 +184,7 @@ const Login = () => {
           <form onSubmit={handleLogin}>
             <div className="mb-3">
               <label
-                className="form-label text-white-50"
+                className="form-label text-dark-50"
                 style={{ fontSize: "0.75rem", fontWeight: 600 }}
               >
                 KULLANICI ADI
@@ -205,7 +206,7 @@ const Login = () => {
 
             <div className="mb-4">
               <label
-                className="form-label text-white-50"
+                className="form-label text-dark-50"
                 style={{ fontSize: "0.75rem", fontWeight: 600 }}
               >
                 ŞİFRE
@@ -245,23 +246,23 @@ const Login = () => {
             </button>
 
             <div className="text-center mt-3">
-              <button
-                type="button"
-                onClick={toggleMode}
-                className="btn btn-link text-white-50 p-0 border-0 bg-transparent text-decoration-none"
-                style={{ fontSize: "0.8rem", fontWeight: 500 }}
-              >
-                Hesabınız yok mu?{" "}
-                <span className="text-success fw-bold">Kayıt Olun</span>
-              </button>
-            </div>
+  <span
+  onClick={toggleMode}
+  style={{
+    cursor: "pointer",
+    fontSize: "0.8rem",
+  }}
+>
+  Hesabınız yok mu? <strong>Kaydol</strong>
+</span>
+</div>
           </form>
         ) : (
           /* KAYIT FORMU */
           <form onSubmit={handleRegister}>
             <div className="mb-3">
               <label
-                className="form-label text-white-50"
+                className="form-label text-dark-50"
                 style={{ fontSize: "0.75rem", fontWeight: 600 }}
               >
                 KULLANICI ADI
@@ -283,7 +284,7 @@ const Login = () => {
 
             <div className="mb-3">
               <label
-                className="form-label text-white-50"
+                className="form-label text-dark-50"
                 style={{ fontSize: "0.75rem", fontWeight: 600 }}
               >
                 AD SOYAD
@@ -305,7 +306,7 @@ const Login = () => {
 
             <div className="mb-3">
               <label
-                className="form-label text-white-50"
+                className="form-label text-dark-50"
                 style={{ fontSize: "0.75rem", fontWeight: 600 }}
               >
                 ŞİFRE
@@ -327,7 +328,7 @@ const Login = () => {
 
             <div className="mb-4">
               <label
-                className="form-label text-white-50"
+                className="form-label text-dark-50"
                 style={{ fontSize: "0.75rem", fontWeight: 600 }}
               >
                 ŞİFRE TEKRARI
@@ -367,16 +368,17 @@ const Login = () => {
             </button>
 
             <div className="text-center mt-3">
-              <button
-                type="button"
-                onClick={toggleMode}
-                className="btn btn-link text-white-50 p-0 border-0 bg-transparent text-decoration-none"
-                style={{ fontSize: "0.8rem", fontWeight: 500 }}
-              >
-                Zaten hesabınız var mı?{" "}
-                <span className="text-success fw-bold">Giriş Yapın</span>
-              </button>
-            </div>
+  <span
+    onClick={toggleMode}
+    style={{
+      cursor: "pointer",
+      fontSize: "0.8rem",
+      fontWeight: 500,
+    }}
+  >
+    Zaten hesabınız var mı? <strong>Giriş Yapın</strong>
+  </span>
+</div>
           </form>
         )}
       </div>

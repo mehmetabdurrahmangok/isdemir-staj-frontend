@@ -200,7 +200,7 @@ const HareketSayfasi = () => {
   });
 
   return (
-    <div className="erp-container" style={{ maxWidth: "980px" }}>
+    <div className="erp-container">
       <h2 className="erp-title">Stok Hareket Yönetimi</h2>
 
       <form
@@ -211,7 +211,7 @@ const HareketSayfasi = () => {
           border: "1px solid rgba(255,255,255,0.04)",
         }}
       >
-        <h4 className="mb-4 text-white" style={{ fontSize: "0.9rem" }}>
+        <h4 className="mb-4 text-dark" style={{ fontSize: "0.9rem" }}>
           {editingId
             ? "[-] Stok Hareketini Güncelle"
             : "[+] Yeni Stok Hareketi Tanımla"}
@@ -289,7 +289,7 @@ const HareketSayfasi = () => {
         style={{ borderColor: "rgba(255,255,255,0.05) !important" }}
       >
         <div className="col-md-3">
-          <label className="form-label text-white-50">Log Rapor Türü</label>
+          <label className="form-label text-dark-50">Log Rapor Türü</label>
           <select
             className="form-select mb-0"
             value={reportType}
@@ -300,7 +300,7 @@ const HareketSayfasi = () => {
           </select>
         </div>
         <div className="col-md-3">
-          <label className="form-label text-white-50">Rapor Tarihi</label>
+          <label className="form-label text-dark-50">Rapor Tarihi</label>
           <input
             type="date"
             className="form-control mb-0"
@@ -322,7 +322,7 @@ const HareketSayfasi = () => {
               style={{ cursor: "pointer" }}
             />
             <label
-              className="form-check-label text-white-50 ms-2"
+              className="form-check-label text-dark-50 ms-2"
               htmlFor="filterSearchCheck"
               style={{ fontSize: "0.82rem", cursor: "pointer" }}
             >
@@ -345,9 +345,9 @@ const HareketSayfasi = () => {
 
       {/* 2. BAŞLIK VE ARAMA PANELİ */}
       <div className="d-flex justify-content-between align-items-end mb-3">
-        <h4 className="mb-0 text-white" style={{ fontSize: "0.95rem" }}>
+        <h4 className="mb-0 text-black" style={{ fontSize: "0.95rem" }}>
           Son Stok Hareket Logları
-        </h4>
+        </h4> 
         <div className="d-flex gap-2" style={{ width: "450px" }}>
           <select
             className="form-select form-select-sm mb-0"
@@ -416,7 +416,7 @@ const HareketSayfasi = () => {
                 return (
                   <tr key={h.id}>
                     <td className="font-mono text-muted">#{h.id}</td>
-                    <td className="fw-semibold text-white">
+                    <td className="fw-semibold text-dark">
                       {h.malzeme?.malzemeAdi} ({h.malzeme?.malzemeKodu})
                     </td>
                     <td>

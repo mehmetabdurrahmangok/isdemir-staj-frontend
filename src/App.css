@@ -1,233 +1,228 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap");
 
 :root {
-  --bg-main: #09090b;
-  --bg-card: #121214;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --text-primary: #f4f4f5;
-  --text-secondary: #a1a1aa;
-  --primary-accent: #8b5cf6;
-  --success-accent: #10b981;
-  --danger-accent: #f43f5e;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+
+  --border-color: #e2e8f0;
+
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+
+  --success-accent: #22c55e;
+  --danger-accent: #ef4444;
 }
 
 html,
 body {
-  background-color: var(--bg-main) !important;
-  color: var(--text-primary) !important;
-  font-family: "Inter", sans-serif !important;
   margin: 0;
   padding: 0;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: "Inter", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* 1. Üst Menü (Premium Header) */
+* {
+  box-sizing: border-box;
+}
+
+/* =========================
+   üst navbar
+========================= */
+
 .navbar {
-  background-color: rgba(9, 9, 11, 0.8) !important;
-  backdrop-filter: blur(12px);
+  background: #cfcfcf !important;
   border-bottom: 1px solid var(--border-color) !important;
   padding: 18px 0 !important;
 }
 
 .navbar-brand {
+  color: var(--text-primary) !important;
   font-weight: 800 !important;
   font-size: 1.15rem !important;
-  color: var(--text-primary) !important;
-  letter-spacing: -0.5px;
+  text-decoration: none;
 }
 
-.nav-link {
-  color: var(
-    --text-secondary
-  ) !important; /* Görünür olması için açık gri yaptık */
-  font-weight: 600 !important;
-  font-size: 0.85rem !important;
-  margin-left: 30px !important;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  position: relative;
-  padding: 6px 0 !important;
-  transition: color 0.2s ease !important;
+/* =========================
+   LAYOUT
+========================= */
+
+.app-layout {
+  display: flex;
+  min-height: calc(100vh - 72px);
+}
+/* =========================
+   sidebar
+========================= */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: #ffffff;
+  border-right: 1px solid var(--border-color);
+  padding: 20px;
 }
 
-.nav-link:hover {
-  color: var(--text-primary) !important; /* Üzerine gelince beyaz olur */
+.sidebar-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9c9c9c;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
 }
 
-.nav-link::after {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background-color: var(--primary-accent); /* Mor alt çizgi efekti */
-  transition: width 0.2s ease;
+.sidebar-link {
+  display: block;
+  text-decoration: none;
+  color: #000000;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: 0.2s;
 }
 
-.nav-link:hover::after {
-  width: 100%;
+.sidebar-link:hover {
+  background: #eff6ff;
+  color: var(--primary);
 }
 
-/* 2. Ana Taşıyıcı (Centered Canvas) */
-.main-wrapper {
-  padding: 50px 20px;
-  min-height: calc(100vh - 80px);
-  background: radial-gradient(
-    circle at top,
-    rgba(139, 92, 246, 0.08) 0%,
-    rgba(9, 9, 11, 0) 60%
-  );
+.content-area {
+  flex: 1;
+  padding: 24px;
+  overflow-x: auto;
 }
 
-/* 3. Glassmorphic Enterprise Container */
-.erp-container {
-  max-width: 100% !important; /* Kutunun ekran genişliğinin tamamını kullanmasını sağladık */
-  width: 100%;
-  background-color: var(--bg-card) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: 16px !important;
-  padding: 40px !important;
-  margin: 0 auto !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
-}
+/* =========================
+   PAGE TITLES
+========================= */
 
 .erp-title {
-  font-weight: 700;
-  font-size: 1.5rem;
-  letter-spacing: -0.5px;
   color: var(--text-primary);
-  border: none;
-  margin-bottom: 30px;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
-/* 4. Durum Kartları (Metrics Cards) */
+/* =========================
+   ERP CONTAINER
+========================= */
+
+.erp-container {
+  width: 100%;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* =========================
+   METRIC CARDS
+========================= */
+
 .metric-card {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.02) 0%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 22px;
-  transition: border-color 0.3s ease;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .metric-card:hover {
-  border-color: rgba(139, 92, 246, 0.3);
+  border-color:   #cbd5e1;
 }
 
-/* 5. Girdi Alanları (Sleek Forms) */
+/* =========================
+   FORMS
+========================= */
+
 .form-label {
-  font-weight: 500 !important;
-  font-size: 0.8rem !important;
-  color: var(--text-secondary) !important;
-  margin-bottom: 6px !important;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
 .form-control,
 .form-select {
-  background-color: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: 8px !important;
-  padding: 10px 14px !important;
-  font-size: 0.88rem !important;
+  background: white !important;
+  border: 1px solid #dbe4ee !important;
   color: var(--text-primary) !important;
-  transition: all 0.2s ease !important;
+  min-height: 48px;
 }
 
 .form-control:focus,
 .form-select:focus {
-  border-color: var(--primary-accent) !important;
-  background-color: rgba(255, 255, 255, 0.04) !important;
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
 }
 
-/* 6. Butonlar (Ultra-Premium Buttons) */
+/* =========================
+   BUTTONS
+========================= */
+
 .btn {
-  background-color: var(--primary-accent) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 8px !important;
-  font-weight: 600 !important;
-  font-size: 0.85rem !important;
-  padding: 10px 20px !important;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  background: var(--primary) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
 }
 
 .btn:hover {
-  background-color: #7c3aed !important;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2) !important;
+  background: var(--primary-hover) !important;
 }
 
-.btn:active {
-  transform: translateY(0);
-}
+/* =========================
+   TABLES
+========================= */
 
-/* Menü Butonları / Seçim Butonları */
-.btn-secondary-erp {
-  background-color: rgba(255, 255, 255, 0.04) !important;
-  color: var(--text-primary) !important;
-  border: 1px solid var(--border-color) !important;
-}
-
-.btn-secondary-erp:hover {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-/* 7. Tablo Tasarımı (Sleek Data Grid) */
 .table {
-  border: none !important;
-  margin-top: 10px;
+  background: white !important;
 }
 
 .table th {
-  background-color: transparent !important;
-  color: var(--text-secondary) !important;
-  font-weight: 500 !important;
-  font-size: 0.78rem !important;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 16px 15px !important;
+  background: #ffffff !important;
+  color: #475569 !important;
+  font-size: 0.85rem !important;
   border-bottom: 1px solid var(--border-color) !important;
 }
 
 .table td {
-  padding: 16px 15px !important;
-  font-size: 0.88rem !important;
+  background: #ffffff !important;
   color: var(--text-primary) !important;
-  border-bottom: 1px solid var(--border-color) !important;
-  background-color: transparent !important;
-}
-
-.table tbody tr {
-  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f5f9 !important;
 }
 
 .table tbody tr:hover td {
-  background-color: rgba(255, 255, 255, 0.01) !important;
+  background: #ffffff !important;
 }
 
-/* Monospace font */
+/* =========================
+   MONO FONT
+========================= */
+
 .font-mono {
   font-family: "JetBrains Mono", monospace !important;
 }
 
-/* 8. Pulsing LED (Canlılık Göstergesi) */
+/* =========================
+   STATUS LED
+========================= */
+
 .pulse-led {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   display: inline-block;
-  margin-right: 8px;
 }
+
 .led-green {
   background-color: var(--success-accent);
   box-shadow: 0 0 10px var(--success-accent);
   animation: pulse-led-anim 2s infinite;
 }
+
 .led-orange {
   background-color: #f59e0b;
   box-shadow: 0 0 10px #f59e0b;
@@ -236,65 +231,74 @@ body {
 @keyframes pulse-led-anim {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
   }
 }
 
-/* 9. CSS Mini Bar Grafik Göstergesi (Stok Yoğunluğu) */
+/* =========================
+   STOCK BAR
+========================= */
+
 .density-bar-bg {
   width: 100%;
   height: 4px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 2px;
+  background: #e2e8f0;
+  border-radius: 999px;
   overflow: hidden;
-  margin-top: 5px;
-}
-.density-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.5s ease;
 }
 
-/* Animasyonlu yumuşak giriş */
-.animate-fade-in {
-  animation: fadeIn 0.3s ease;
+.density-bar-fill {
+  height: 100%;
+  transition: width 0.4s ease;
 }
+
+/* =========================
+   ANIMATION
+========================= */
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
-/* 1. Seçim Kutusu (Dropdown) Açılır Menüdeki Yazıları Siyah Yapma */
+
+/* =========================
+   SELECT OPTIONS
+========================= */
+
 .form-select option {
-  color: #000000 !important; /* Yazıları net siyah yapar */
-  background-color: #ffffff !important; /* Seçeneklerin arka planını beyaz yapar */
+  color: #000;
+  background: #fff;
 }
 
-/* 2. Tablodaki Kategori/Tür Rozetlerinin (Badge) Modern Şeffaf Tasarımı */
+/* =========================
+   BADGES
+========================= */
+
 .badge-erp {
-  background-color: rgba(
-    255,
-    255,
-    255,
-    0.04
-  ) !important; /* Şeffaf koyu arka plan */
-  color: var(--text-primary) !important; /* Beyaz/gümüş yazı */
-  border: 1px solid rgba(255, 255, 255, 0.15) !important; /* İnce soft çerçeve */
-  font-weight: 600 !important;
-  font-size: 0.75rem !important;
-  padding: 4px 10px !important;
-  border-radius: 4px !important; /* Hafif yuvarlatılmış köşeler */
+  background: #eff6ff;
+  color: var(--primary);
+  border: 1px solid #bfdbfe;
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 999px;
 }

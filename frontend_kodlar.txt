@@ -238,7 +238,7 @@ const Dashboard = () => {
         style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
       >
         <h2
-          className="m-0 border-0 p-0 text-white"
+          className="m-0 border-0 p-0 text-dark"
           style={{ fontSize: "1.25rem", fontWeight: 700 }}
         >
           â–  NEURAL.STOK
@@ -275,7 +275,7 @@ const Dashboard = () => {
               Toplam Hareket SayÄ±sÄ±
             </span>
             <h3
-              className="m-0 mt-2 font-mono text-white fw-bold"
+              className="m-0 mt-2 font-mono text-dark fw-bold"
               style={{ fontSize: "1.8rem" }}
             >
               {totalFlows}
@@ -301,7 +301,7 @@ const Dashboard = () => {
               Net Stok Hacmi
             </span>
             <h3
-              className="m-0 mt-2 font-mono text-white fw-bold"
+              className="m-0 mt-2 font-mono text-dark fw-bold"
               style={{ fontSize: "1.8rem" }}
             >
               {totalQuantity}{" "}
@@ -328,7 +328,7 @@ const Dashboard = () => {
               Aktif Malzeme TÃ¼rÃ¼
             </span>
             <h3
-              className="m-0 mt-2 font-mono text-white fw-bold"
+              className="m-0 mt-2 font-mono text-dark fw-bold"
               style={{ fontSize: "1.8rem" }}
             >
               {activeKinds}{" "}
@@ -378,7 +378,7 @@ const Dashboard = () => {
           style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
         >
           <h4
-            className="mb-3 text-white"
+            className="mb-3 text-dark"
             style={{ fontSize: "1rem", fontWeight: 600 }}
           >
             Yeni Malzeme KayÄ±t ProtokolÃ¼
@@ -458,7 +458,7 @@ const Dashboard = () => {
           style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
         >
           <h4
-            className="mb-3 text-white"
+            className="mb-3 text-dark"
             style={{ fontSize: "1rem", fontWeight: 600 }}
           >
             Stok GiriÅŸ-Ã‡Ä±kÄ±ÅŸ Formu
@@ -539,12 +539,12 @@ const Dashboard = () => {
         <div
           className="p-4 mb-4 border border-secondary bg-dark rounded-3 animate-fade-in"
           style={{
-            maxWidth: "500px",
+           
             borderColor: "rgba(255,255,255,0.08) !important",
           }}
         >
           <h4
-            className="mb-3 text-white"
+            className="mb-3 text-dark"
             style={{ fontSize: "1rem", fontWeight: 600 }}
           >
             Yeni Malzeme TÃ¼rÃ¼ TanÄ±mla
@@ -636,9 +636,9 @@ const Dashboard = () => {
                     >
                       #{idx + 1}
                     </td>
-                    <td className="font-mono fw-bold text-white">{item.kod}</td>
+                    <td className="font-mono fw-bold text-dark">{item.kod}</td>
                     <td>
-                      <div className="fw-semibold text-white">{item.ad}</div>
+                      <div className="fw-semibold text-dark">{item.ad}</div>
                       <div
                         style={{
                           fontSize: "0.72rem",
@@ -810,7 +810,7 @@ const HareketSayfasi = () => {
           border: "1px solid rgba(255,255,255,0.04)",
         }}
       >
-        <h4 className="mb-4 text-white" style={{ fontSize: "0.9rem" }}>
+        <h4 className="mb-4 text-dark" style={{ fontSize: "0.9rem" }}>
           [+] Yeni Stok Hareketi TanÄ±mla
         </h4>
         <div className="row g-2 mb-3">
@@ -882,7 +882,7 @@ const HareketSayfasi = () => {
       </form>
 
 
-      <h4 className="mb-3 text-white" style={{ fontSize: "0.95rem" }}>
+      <h4 className="mb-3 text-dark" style={{ fontSize: "0.95rem" }}>
         Son Stok Hareket LoglarÄ±
       </h4>
       <div className="table-responsive">
@@ -908,7 +908,7 @@ const HareketSayfasi = () => {
               return (
                 <tr key={h.id || idx}>
                   <td className="font-mono text-muted">#{idx + 1}</td>
-                  <td className="fw-semibold text-white">
+                  <td className="fw-semibold text-dark">
                     {h.ad} ({h.kod})
                   </td>
                   <td>
@@ -1001,7 +1001,7 @@ const MalzemeListe = () => {
       <div className="erp-container d-flex justify-content-center align-items-center" style={{ minHeight: "400px" }}>
         <div className="text-center">
           <div className="spinner-border text-light mb-3" role="status"></div>
-          <h4 className="text-white">VeritabanÄ±ndan bilgiler alÄ±nÄ±yor...</h4>
+          <h4 className="text-dark">VeritabanÄ±ndan bilgiler alÄ±nÄ±yor...</h4>
         </div>
       </div>
     );
@@ -1015,7 +1015,7 @@ const MalzemeListe = () => {
         style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
       >
         <h2
-          className="m-0 border-0 p-0 text-white"
+          className="m-0 border-0 p-0 text-dark"
           style={{ fontSize: "1.25rem", fontWeight: 700 }}
         >
           â–  ENVANTER GENEL RAPORU
@@ -1051,7 +1051,7 @@ const MalzemeListe = () => {
               Toplam KayÄ±t SayÄ±sÄ±
             </span>
             <h3
-              className="m-0 mt-2 font-mono text-white fw-bold"
+              className="m-0 mt-2 font-mono text-dark fw-bold"
               style={{ fontSize: "1.8rem" }}
             >
               {totalFlows}
@@ -1076,7 +1076,7 @@ const MalzemeListe = () => {
               Net Stok Hacmi
             </span>
             <h3
-              className="m-0 mt-2 font-mono text-white fw-bold"
+              className="m-0 mt-2 font-mono text-dark fw-bold"
               style={{ fontSize: "1.8rem" }}
             >
               {totalQuantity} <span style={{ fontSize: "0.9rem", color: "#a1a1aa" }}>Adet</span>
@@ -1101,7 +1101,7 @@ const MalzemeListe = () => {
               Aktif Kategori Ã‡eÅŸidi
             </span>
             <h3
-              className="m-0 mt-2 font-mono text-white fw-bold"
+              className="m-0 mt-2 font-mono text-dark fw-bold"
               style={{ fontSize: "1.8rem" }}
             >
               {activeKinds} <span style={{ fontSize: "0.9rem", color: "#a1a1aa" }}>Kategori</span>
@@ -1116,7 +1116,7 @@ const MalzemeListe = () => {
       {/* Arama ve Filtreleme BÃ¶lÃ¼mÃ¼ */}
       <div className="row g-3 mb-4 align-items-end">
         <div className="col-md-7">
-          <label className="form-label text-white-50">AkÄ±llÄ± Arama</label>
+          <label className="form-label text-dark-50">AkÄ±llÄ± Arama</label>
           <input
             type="text"
             className="form-control mb-0"
@@ -1126,7 +1126,7 @@ const MalzemeListe = () => {
           />
         </div>
         <div className="col-md-5">
-          <label className="form-label text-white-50">Kategori Filtresi</label>
+          <label className="form-label text-dark-50">Kategori Filtresi</label>
           <select
             className="select form-select mb-0"
             value={selectedTur}
@@ -1175,12 +1175,12 @@ const MalzemeListe = () => {
                     <td className="font-mono text-secondary">
                       #{item.id || idx + 1}
                     </td>
-                    <td className="font-mono fw-bold text-white">
+                    <td className="font-mono fw-bold text-dark">
                       {item.kod || "-"}
                     </td>
                     <td>
                       {/* DÃœZELTME: item.ad yerine item.adi kullanÄ±lÄ±yor */}
-                      <div className="fw-semibold text-white">
+                      <div className="fw-semibold text-dark">
                         {item.adi || "Ä°simsiz Malzeme"}
                       </div>
                       <div style={{ fontSize: "0.72rem", color: "#a1a1aa" }}>
@@ -1327,7 +1327,7 @@ const MalzemeTanim = () => {
           border: "1px solid rgba(255,255,255,0.04)",
         }}
       >
-        <h4 className="mb-4 text-white" style={{ fontSize: "0.9rem" }}>
+        <h4 className="mb-4 text-dark" style={{ fontSize: "0.9rem" }}>
           [+] Yeni Malzeme TanÄ±mÄ± (DB: MALZEME_TANIM_TBL)
         </h4>
         <div className="row g-2 mb-3">
@@ -1395,7 +1395,7 @@ const MalzemeTanim = () => {
 
       </form>
 
-      <h4 className="mb-3 text-white" style={{ fontSize: "0.95rem" }}>
+      <h4 className="mb-3 text-dark" style={{ fontSize: "0.95rem" }}>
         TanÄ±mlÄ± Malzemeler Listesi
       </h4>
       <div className="table-responsive">
@@ -1413,8 +1413,8 @@ const MalzemeTanim = () => {
             {malzemeler.map((m, idx) => (
               <tr key={m.id || idx}>
                 <td className="font-mono text-muted">#{idx + 1}</td>
-                <td className="font-mono fw-bold text-white">{m.kod}</td>
-                <td className="fw-semibold text-white">{m.ad}</td>
+                <td className="font-mono fw-bold text-dark">{m.kod}</td>
+                <td className="fw-semibold text-dark">{m.ad}</td>
                 <td>
                   <span className="badge-erp">{m.tur}</span>
                 </td>
@@ -1552,7 +1552,7 @@ const TurTanim = () => {
           className="col-md-5 border-end border-secondary pe-4"
           style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
         >
-          <h4 className="mb-4 text-white" style={{ fontSize: "0.95rem" }}>
+          <h4 className="mb-4 text-dark" style={{ fontSize: "0.95rem" }}>
             [+] Yeni TÃ¼r TanÄ±mÄ± (DB: MALZEME_TUR_TANIM_TBL)
           </h4>
           <form onSubmit={handleSubmit}>
@@ -1576,7 +1576,7 @@ const TurTanim = () => {
 
         {/* SaÄŸ Kolon - TÄ±klanÄ±nca AÃ§Ä±lan Akordeon Liste */}
         <div className="col-md-7 ps-4">
-          <h4 className="mb-4 text-white" style={{ fontSize: "0.95rem" }}>
+          <h4 className="mb-4 text-dark" style={{ fontSize: "0.95rem" }}>
             TÃ¼rler ve Ä°sdemir AkÄ±ÅŸ DetaylarÄ± (TÄ±klayarak AÃ§Ä±n)
           </h4>
 
@@ -1628,7 +1628,7 @@ const TurTanim = () => {
                     >
                       <div className="mb-3">
                         <strong
-                          className="text-white d-block mb-1"
+                          className="text-dark d-block mb-1"
                           style={{ fontSize: "0.75rem" }}
                         >
                           Ä°SDEMÄ°R'DE NELER ÃœRETÄ°LÄ°R / NE Ä°ÅE YARAR?
@@ -1646,7 +1646,7 @@ const TurTanim = () => {
                       </div>
                       <div>
                         <strong
-                          className="text-white d-block mb-1"
+                          className="text-dark d-block mb-1"
                           style={{ fontSize: "0.75rem" }}
                         >
                           NEREDEN VE NASIL TEMÄ°N EDÄ°LÄ°R?

@@ -136,7 +136,7 @@ const Dashboard = () => {
         style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
       >
         <h2
-          className="m-0 border-0 p-0 text-white"
+          className="m-0 border-0 p-0 text-dark"
           style={{ fontSize: "1.25rem", fontWeight: 700 }}
         >
           ■ NEURAL.STOK
@@ -174,7 +174,7 @@ const Dashboard = () => {
               Kayıtlı Malzeme Sayısı
             </span>
             <h3
-              className="m-0 mt-2 font-mono text-white fw-bold"
+              className="m-0 mt-2 font-mono text-dark fw-bold"
               style={{ fontSize: "1.8rem" }}
             >
               {totalFlows}
@@ -200,7 +200,7 @@ const Dashboard = () => {
               Genel Net Stok Hacmi
             </span>
             <h3
-              className="m-0 mt-2 font-mono text-white fw-bold"
+              className="m-0 mt-2 font-mono text-dark fw-bold"
               style={{ fontSize: "1.8rem" }}
             >
               {totalQuantity}{" "}
@@ -227,7 +227,7 @@ const Dashboard = () => {
               Aktif Malzeme Türü
             </span>
             <h3
-              className="m-0 mt-2 font-mono text-white fw-bold"
+              className="m-0 mt-2 font-mono text-dark fw-bold"
               style={{ fontSize: "1.8rem" }}
             >
               {activeKinds}{" "}
@@ -277,7 +277,7 @@ const Dashboard = () => {
           style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
         >
           <h4
-            className="mb-3 text-white"
+            className="mb-3 text-dark"
             style={{ fontSize: "1rem", fontWeight: 600 }}
           >
             Yeni Malzeme Kayıt Protokolü
@@ -357,7 +357,7 @@ const Dashboard = () => {
           style={{ borderColor: "rgba(255,255,255,0.08) !important" }}
         >
           <h4
-            className="mb-3 text-white"
+            className="mb-3 text-dark"
             style={{ fontSize: "1rem", fontWeight: 600 }}
           >
             Stok Giriş-Çıkış Formu
@@ -427,12 +427,12 @@ const Dashboard = () => {
         <div
           className="p-4 mb-4 border border-secondary bg-dark rounded-3 animate-fade-in"
           style={{
-            maxWidth: "500px",
+            
             borderColor: "rgba(255,255,255,0.08) !important",
           }}
         >
           <h4
-            className="mb-3 text-white"
+            className="mb-3 text-dark"
             style={{ fontSize: "1rem", fontWeight: 600 }}
           >
             Yeni Malzeme Türü Tanımla
@@ -521,9 +521,9 @@ const Dashboard = () => {
                     >
                       #{item.id}
                     </td>
-                    <td className="font-mono fw-bold text-white">{item.malzemeKodu || "-"}</td>
+                    <td className="font-mono fw-bold text-dark">{item.malzemeKodu || "-"}</td>
                     <td>
-                      <div className="fw-semibold text-white">{item.malzemeAdi || "-"}</div>
+                      <div className="fw-semibold text-dark">{item.malzemeAdi || "-"}</div>
                       <div
                         style={{
                           fontSize: "0.72rem",
