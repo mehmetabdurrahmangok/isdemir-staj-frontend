@@ -339,7 +339,7 @@ const HareketSayfasi = () => {
               htmlFor="filterSearchCheck"
               style={{ fontSize: "0.82rem", cursor: "pointer" }}
             >
-              Arama Kriterini Filtrele (
+              Seçili Kategoriye Göre Excel Raporunu Filtrele (
               {searchQuery ? `"${searchQuery}"` : "Tümü"})
             </label>
           </div>
