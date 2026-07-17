@@ -265,12 +265,12 @@ const Login = () => {
                 className="form-label text-dark-50"
                 style={{ fontSize: "0.75rem", fontWeight: 600 }}
               >
-                KULLANICI ADI
+                EMAIL
               </label>
               <input
-                type="text"
+                type="email"
                 className="form-control"
-                placeholder="Kullanıcı adınızı belirleyin"
+                placeholder="email@example.com"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
