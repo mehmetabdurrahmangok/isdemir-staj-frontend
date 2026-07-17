@@ -508,7 +508,7 @@ const MalzemeListe = () => {
             left: 0,
             width: "100%",
             height: "100%",
-            backgroundColor: "rgba(0,0,0,0.8)",
+            backgroundColor: "rgba(104, 104, 104, 0.8)",
             zIndex: 1050,
             display: "flex",
             justifyContent: "center",
@@ -516,15 +516,19 @@ const MalzemeListe = () => {
           }}
         >
           <div
-            className="erp-container p-4 animate-fade-in"
-            style={{
-              width: "90%",
-              
-              
-              overflowY: "auto",
-              border: "1px solid rgba(255,255,255,0.1)",
-            }}
-          >
+  className="p-4 animate-fade-in"
+  style={{
+    width: "90%",
+    maxWidth: "1450px",
+    maxHeight: "90vh",
+    overflowY: "auto",
+    backgroundColor: "#ffffff",
+    color: "#ffffff",
+    borderRadius: "12px",
+    boxShadow: "0 10px 30px rgba(255, 255, 255, 0.15)",
+    border: "1px solid #dee2e6",
+  }}
+>
             <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
               <div>
                 <h3 className="m-0 text-dark" style={{ fontSize: "1.2rem" }}>
@@ -570,7 +574,7 @@ const MalzemeListe = () => {
               Hareket Geçmişi
             </h5>
             <div className="table-responsive">
-              <table className="table table-dark table-striped table-sm w-100">
+              <table className="table table-white table-striped table-sm w-100">
                 <thead>
                   <tr>
                     <th style={{ color: "#a1a1aa" }}>HAREKET ID</th>

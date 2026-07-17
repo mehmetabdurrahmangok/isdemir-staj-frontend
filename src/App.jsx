@@ -23,9 +23,11 @@ import "./App.css";
 function AppContent() {
   const location = useLocation();
 
-  const currentUser = {
-    adSoyad: "Admin",
-  };
+  const userJson = localStorage.getItem("user");
+
+const currentUser = userJson
+  ? JSON.parse(userJson)
+  : null;
 
   const handleLogout = () => {
     localStorage.removeItem("user");

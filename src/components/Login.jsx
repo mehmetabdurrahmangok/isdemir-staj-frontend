@@ -187,12 +187,12 @@ const Login = () => {
                 className="form-label text-dark-50"
                 style={{ fontSize: "0.75rem", fontWeight: 600 }}
               >
-                KULLANICI ADI
+                EMAIL
               </label>
               <input
-                type="text"
+                type="email"
                 className="form-control"
-                placeholder="admin"
+                placeholder="admin@example.com"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -214,7 +214,7 @@ const Login = () => {
               <input
                 type="password"
                 className="form-control"
-                placeholder="123"
+                placeholder=""
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
